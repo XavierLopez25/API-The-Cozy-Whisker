@@ -129,3 +129,32 @@ CREATE TABLE DetallePedido (
     fecha_ordenado TIMESTAMP,
     Nota TEXT
 );
+
+--USER LOGIN
+CREATE OR REPLACE FUNCTION user_login(p_username VARCHAR, p_password VARCHAR)
+RETURNS SETOF Usuario AS
+$$
+BEGIN
+  RETURN QUERY SELECT * FROM Usuario WHERE usuario = p_username AND pwd_md5 = MD5(p_password);
+END;
+$$ LANGUAGE plpgsql;
+
+--USER REGISTER
+CREATE OR REPLACE FUNCTION register_new_employee(_name TEXT, _role TEXT, _startDate DATE, _username TEXT, _password TEXT)
+RETURNS INT AS $$
+DECLARE
+  _employeeId INT;
+BEGIN
+  INSERT INTO Empleado (nombre, rol, fechaEntrada)
+  VALUES (_name, _role, _startDate)
+  RETURNING empleado_id INTO _employeeId;
+  
+  INSERT INTO Usuario (empleado_id, usuario, pwd_md5)
+  VALUES (_employeeId, _username, MD5(_password));
+  
+  RETURN _employeeId;
+END;
+$$ LANGUAGE plpgsql;
+
+--Add Administator
+SELECT register_new_employee('Administrator'::TEXT, 'Administrator'::TEXT, '2024-04-08'::DATE, 'Admin'::TEXT, '1234'::TEXT) AS empleado_id
