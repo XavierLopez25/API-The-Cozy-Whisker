@@ -2,9 +2,19 @@
 --Use only for subsequent runs
 --DROP DATABASE the_cozy_whisker;
 
-CREATE DATABASE the_cozy_whisker;
+--Docker already does this line below:
+--CREATE DATABASE the_cozy_whisker;
 
 GRANT ALL PRIVILEGES ON DATABASE the_cozy_whisker TO dbadmin;
+
+
+--Tables--
+--Tables--
+--Tables--
+--Tables--
+--Tables--
+--Tables--
+
 
 -- Table creation for 'Área'
 CREATE TABLE Area (
@@ -130,6 +140,84 @@ CREATE TABLE DetallePedido (
     Nota TEXT
 );
 
+
+--Needed Insertions--
+--Needed Insertions--
+--Needed Insertions--
+--Needed Insertions--
+--Needed Insertions--
+--Needed Insertions--
+
+
+-- Insert measures for 'Plato'
+INSERT INTO Medida (tipo, descripcion) VALUES
+('Plato', 'Pequeño'),
+('Plato', 'Mediano'),
+('Plato', 'Grande'),
+('Bebida', '8oz'),
+('Bebida', '12oz'),
+('Bebida', '16oz');
+
+
+-- Insert Foods and Drinks
+INSERT INTO PlatoBebida (tipo, nombre, descripcion, precio, imagenLink) VALUES
+('Plato', 'Sándwich de Bulgogi', 'Un delicioso y abundante sándwich con bulgogi.', 96.06, 'https://i.pinimg.com/564x/60/e0/df/60e0df6fdeb188512cb389676679386d.jpg'),
+('Plato', 'Crepas de Kimchi y Queso', 'Crepas saladas rellenas de kimchi picante y queso derretido.', 34.67, 'https://i.pinimg.com/564x/24/51/65/245165ff896e88cd8f592c13b3d11396.jpg'),
+('Plato', 'Tostada de Huevo al Vapor con Cebolla Verde', 'Huevo al vapor sobre una tostada ligera y esponjosa, cubierto con cebollas verdes.', 39.65, 'https://i.pinimg.com/564x/94/fa/08/94fa0814b8ce605e501243d972907f10.jpg'),
+('Plato', 'Ensalada de Fideos Fríos Coreanos (Naengmyeon)', 'Una refrescante ensalada de fideos fríos con una salsa picante.', 46.46, 'https://i.pinimg.com/564x/18/c4/8b/18c48b58df913c37f9ee0e25544ae354.jpg'),
+('Plato', 'Pastel de Arroz Inflado con Sésamo y Miel', 'Pastel de arroz crujiente endulzado con miel y espolvoreado con semillas de sésamo.', 97.11, 'https://i.pinimg.com/564x/7b/2b/98/7b2b986acf3c55b7807795bb94599c3a.jpg'),
+('Plato', 'Sándwich de Pavo con Salsa Gochujang', 'Sándwich jugoso de pavo con una salsa gochujang picante.', 54.38, 'https://i.pinimg.com/564x/59/5f/3d/595f3dae391e2c0ce18909046c9eeef1.jpg'),
+('Plato', 'Croissant de Matcha y Frijoles Rojos', 'Croissant hojaldrado relleno de matcha y pasta dulce de frijoles rojos.', 96.59, 'https://i.pinimg.com/564x/fa/1d/31/fa1d31242226ca5f2bf89c6e6c4a50a7.jpg'),
+('Plato', 'Bowl de Açaí con Frutas y Nueces', 'Bowl nutritivo de açaí cubierto con frutas frescas y nueces.', 97.22, 'https://i.pinimg.com/564x/61/d0/52/61d0525e6197ac32cc724c651463418c.jpg'),
+('Plato', 'Mini Pancakes de Patata Dulce', 'Mini pancakes esponjosos hechos con batata.', 51.6, 'https://i.pinimg.com/564x/e7/5c/be/e75cbe98f2da7ced0474cd7b82a58554.jpg'),
+('Plato', 'Pastel de Mochi de Té Verde', 'Pastel de mochi de té verde suave y masticable.', 96.33, 'https://i.pinimg.com/564x/da/0e/2b/da0e2bf8a7d3140ea259abd40b0d1d37.jpg'),
+('Bebida', 'Café Dalgona', 'Café Dalgona batido, cremoso y rico.', 14.1, 'https://i.pinimg.com/564x/9e/e2/84/9ee2846b3085976e24d33655e43443f2.jpg'),
+('Bebida', 'Té de Cereza Blossom', 'Té de flor de cerezo fragante, ligero y refrescante.', 38.71, 'https://i.pinimg.com/564x/3b/ca/ca/3bcacae54182a64dd02fc3ba95b9657b.jpg'),
+('Bebida', 'Smoothie de Melón Coreano', 'Smoothie dulce y cremoso de melón coreano.', 32.3, 'https://i.pinimg.com/564x/95/92/65/95926532427bcee959f210cbcb5d6633.jpg'),
+('Bebida', 'Latte de Taro Morado', 'Latte de taro morado suave y cremoso.', 45.63, 'https://i.pinimg.com/564x/5a/c3/d8/5ac3d8cc86c7c8df2abed2562963d0f4.jpg'),
+('Bebida', 'Boba de Té Negro con Miel', 'Té negro clásico con miel y perlas de tapioca.', 37.52, 'https://i.pinimg.com/564x/43/17/c3/4317c3a2ca1f923b43d6d03e98b87351.jpg'),
+('Bebida', 'Frappé de Café con Caramelo y Soja', 'Frappé de café helado con caramelo y un toque de soja.', 30.88, 'https://i.pinimg.com/564x/01/06/46/010646301747e2a765574b2415049621.jpg'),
+('Bebida', 'Té Verde Frío con Limón y Jengibre', 'Refrescante té verde frío con limón y jengibre.', 10.41, 'https://i.pinimg.com/564x/ad/2b/b0/ad2bb02d518fc5158ad0a951b7d167cb.jpg'),
+('Bebida', 'Smoothie de Arándanos y Yogur', 'Smoothie cremoso de yogur con arándanos frescos.', 11.92, 'https://i.pinimg.com/564x/69/76/f6/6976f625854b176bef23360a8771e244.jpg'),
+('Bebida', 'Latte de Matcha con Espuma de Leche', 'Latte de matcha rico con espuma de leche.', 32.12, 'https://i.pinimg.com/564x/1a/16/86/1a1686ab7184012f7b5ae97ea10c7085.jpg'),
+('Bebida', 'Sangría de Té Blanco y Frutas', 'Sangría ligera y afrutada de té blanco.', 11.81, 'https://i.pinimg.com/564x/c9/3f/7d/c93f7d4686fe511840584659f59b75a6.jpg');
+
+
+-- Association for platos with medidas 'pequeño', 'mediano', 'grande' (IDs 1, 2, 3)
+INSERT INTO MedidaComida (platoBebida_id, medida_id) VALUES
+(1, 1), (1, 2), (1, 3),
+(2, 1), (2, 2), (2, 3),
+(3, 1), (3, 2), (3, 3),
+(4, 1), (4, 2), (4, 3),
+(5, 1), (5, 2), (5, 3),
+(6, 1), (6, 2), (6, 3),
+(7, 1), (7, 2), (7, 3),
+(8, 1), (8, 2), (8, 3),
+(9, 1), (9, 2), (9, 3),
+(10, 1), (10, 2), (10, 3);
+
+-- Association for bebidas with medidas '8oz', '12oz', '16oz' (IDs 4, 5, 6)
+INSERT INTO MedidaComida (platoBebida_id, medida_id) VALUES
+(11, 4), (11, 5), (11, 6),
+(12, 4), (12, 5), (12, 6),
+(13, 4), (13, 5), (13, 6),
+(14, 4), (14, 5), (14, 6),
+(15, 4), (15, 5), (15, 6),
+(16, 4), (16, 5), (16, 6),
+(17, 4), (17, 5), (17, 6),
+(18, 4), (18, 5), (18, 6),
+(19, 4), (19, 5), (19, 6),
+(20, 4), (20, 5), (20, 6);
+
+
+---Functions---
+---Functions---
+---Functions---
+---Functions---
+---Functions---
+---Functions---
+
+
 --USER LOGIN
 CREATE OR REPLACE FUNCTION user_login(p_username VARCHAR, p_password VARCHAR)
 RETURNS SETOF Usuario AS
@@ -158,3 +246,19 @@ $$ LANGUAGE plpgsql;
 
 --Add Administator
 SELECT register_new_employee('Administrator'::TEXT, 'Administrator'::TEXT, '2024-04-08'::DATE, 'Admin'::TEXT, '1234'::TEXT) AS empleado_id
+
+
+---Procedures---
+---Procedures---
+---Procedures---
+---Procedures---
+---Procedures---
+---Procedures---
+
+
+---Triggers---
+---Triggers---
+---Triggers---
+---Triggers---
+---Triggers---
+---Triggers---
