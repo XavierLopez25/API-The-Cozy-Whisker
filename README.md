@@ -109,6 +109,64 @@ This guide walks you through the process of setting up and running your API Node
 
   5. You can now proceed with the build process again as described in the setup instructions.
 
+## Handling PostgreSQL Database Operations in Docker
+
+This guide provides steps to follow if you encounter errors like "CANNOT DROP DATABASE" or "DATABASE ALREADY EXISTS" when working with PostgreSQL inside a Docker container.
+
+### Steps to Resolve Common Errors
+
+1. **List All Containers**
+
+   Use this command to list all Docker containers, including their IDs and statuses:
+
+   ```bash
+   docker ps -a
+   ```
+
+2. **Select the Container ID**
+
+   Identify and note down the container ID of the PostgreSQL container from the list provided by the previous command.
+
+3. **Start the Container (If Not Running)**
+
+   If the container is not already running, start it with the following command, replacing `containerID` with your actual container ID:
+
+   ```bash
+   docker start containerID
+   ```
+
+4. **Access the Container's Bash Shell**
+
+   Use this command to enter the bash shell of your container:
+
+   ```bash
+   docker exec -it containerID bash
+   ```
+
+5. **Inside the Bash Shell**
+
+   Once inside the container's bash shell, execute the following command to create a temporary database. This step is necessary for performing certain operations like dropping another database, as you cannot drop a database while connected to it.
+
+   ```bash
+   createdb -U dbadmin tempdb
+   ```
+
+6. **Execute the Drop Database Command**
+
+   Exit the bash shell to return to your host machine's command line. Then, execute the following command to drop the desired database, in this case, `the_cozy_whisker`:
+
+   ```bash
+   docker exec -it containerID psql -U dbadmin -d tempdb -c "DROP DATABASE IF EXISTS the_cozy_whisker;" -W
+   ```
+
+   When prompted, enter the password for the `dbadmin` user.
+
+### Notes
+
+- Replace `containerID` with the actual ID of your Docker container.
+- Replace `the_cozy_whisker` with the name of the database you wish to drop, if different.
+- These instructions assume `dbadmin` as the PostgreSQL user. Adjust accordingly if you use a different username.
+
 # Conclusion
 
 Follow these steps carefully to ensure a smooth setup and operation of your API Node app with Docker. Remember to substitute PROCESSID, dbadmin, and DATABASENAME with your actual process ID, database admin username, and database name, respectively.
