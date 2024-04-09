@@ -352,6 +352,40 @@ SELECT register_new_employee('Administrator'::TEXT, 'Administrator'::TEXT, '2024
 ---Procedures---
 ---Procedures---
 
+CREATE OR REPLACE PROCEDURE insert_new_cuenta(mesa_id_arg int, personas_arg int)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+  new_num_cuenta TEXT;
+BEGIN
+  	SELECT INTO new_num_cuenta COALESCE(MAX(CAST(num_cuenta AS INTEGER)), 0) + 1 FROM public.cuenta;
+  
+  	INSERT INTO public.cuenta(num_cuenta, mesa_id, estado, fecha_inicio, personas)
+	VALUES (CAST(new_num_cuenta AS TEXT), mesa_id_arg, 'Abierta', NOW(), personas_arg);
+	RAISE NOTICE 'Cuenta Creada para la mesa %', mesa_id_arg;
+
+END;
+$$;
+
+
+CREATE OR REPLACE PROCEDURE close_cuenta(num_cuenta_arg TEXT)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+	mesaID INT;
+BEGIN
+  	UPDATE Cuenta
+  	SET estado = 'Cerrada', fecha_fin = NOW()
+  	WHERE num_cuenta = num_cuenta_arg;
+	
+	SELECT mesa_id INTO mesaID
+  	FROM Cuenta
+ 	WHERE num_cuenta = num_cuenta_arg;
+	
+	RAISE NOTICE 'Cuenta Cerrada para la mesa %', mesaID;
+END;
+$$;
+
 
 ---Triggers---
 ---Triggers---
