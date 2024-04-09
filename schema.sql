@@ -387,6 +387,46 @@ END;
 $$;
 
 
+CREATE OR REPLACE PROCEDURE create_pedido_and_detalle_with_mesa_id(
+    mesa_id_arg INT, 
+    platoB_id_arg INT, 
+    cantidad_arg INT, 
+    medidaC_id_arg INT, 
+    nota_arg TEXT
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+  new_num_cuenta TEXT;
+  pedido_id INT;
+BEGIN
+  -- Generate a new num_cuenta
+  SELECT INTO new_num_cuenta COALESCE(MAX(CAST(num_cuenta AS INTEGER)), 0) + 1 FROM Cuenta WHERE mesa_id = mesa_id_arg;
+  
+  -- Insert a new Cuenta if necessary
+  INSERT INTO Cuenta(num_cuenta, mesa_id, estado, fecha_inicio, personas)
+  VALUES (new_num_cuenta, mesa_id_arg, 'Abierta', NOW(), 1)
+  ON CONFLICT (num_cuenta) DO NOTHING;
+
+  -- Check for an existing Pedido for the new num_cuenta
+  SELECT Pedido.pedido_id INTO pedido_id FROM Pedido WHERE num_cuenta = new_num_cuenta LIMIT 1;
+  
+  -- If no Pedido exists, create a new one
+  IF pedido_id IS NULL THEN
+    INSERT INTO Pedido(num_cuenta) VALUES (new_num_cuenta) RETURNING Pedido.pedido_id INTO pedido_id;
+  END IF;
+  
+  -- Insert into DetallePedido
+  INSERT INTO DetallePedido(pedido_id, platoB_id, cantidad, medidaC_id, fecha_ordenado, Nota) 
+  VALUES (pedido_id, platoB_id_arg, cantidad_arg, medidaC_id_arg, NOW(), nota_arg);
+  
+  -- Notify the user
+  RAISE NOTICE 'DetallePedido added for Pedido ID: %', pedido_id;
+END;
+$$;
+
+
+
 ---Triggers---
 ---Triggers---
 ---Triggers---
