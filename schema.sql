@@ -210,6 +210,103 @@ INSERT INTO MedidaComida (platoBebida_id, medida_id) VALUES
 (20, 4), (20, 5), (20, 6);
 
 
+-- Insert Areas
+INSERT INTO Area (nombre, fumadores, mesaMovil) VALUES
+('Patio Exterior', TRUE, TRUE),
+('Sala Principal', FALSE, FALSE),
+('Terraza', TRUE, TRUE),
+('Jardín', FALSE, TRUE),
+('Salón VIP', FALSE, FALSE),
+('Barra', FALSE, TRUE),
+('Balcón', TRUE, FALSE),
+('Área de Descanso', FALSE, TRUE),
+('Salón de Eventos', FALSE, FALSE),
+('Terraza VIP', FALSE, TRUE);
+
+
+
+-- Mesas for 'Patio Exterior' (area_id = 1)
+INSERT INTO Mesa (capacidadMesa, esMovil, area_id) VALUES
+(4, TRUE, 1),
+(2, FALSE, 1),
+(6, TRUE, 1),
+(4, FALSE, 1),
+(8, TRUE, 1);
+
+-- Mesas for 'Sala Principal' (area_id = 2)
+INSERT INTO Mesa (capacidadMesa, esMovil, area_id) VALUES
+(4, FALSE, 2),
+(6, FALSE, 2),
+(8, FALSE, 2),
+(10, FALSE, 2),
+(2, FALSE, 2);
+
+-- Mesas for 'Terraza' (area_id = 3)
+INSERT INTO Mesa (capacidadMesa, esMovil, area_id) VALUES
+(2, TRUE, 3),
+(4, TRUE, 3),
+(6, FALSE, 3),
+(8, TRUE, 3),
+(10, FALSE, 3);
+
+-- Mesas for 'Jardín' (area_id = 4)
+INSERT INTO Mesa (capacidadMesa, esMovil, area_id) VALUES
+(2, TRUE, 4),
+(4, TRUE, 4),
+(6, TRUE, 4),
+(8, TRUE, 4),
+(10, FALSE, 4);
+
+-- Mesas for 'Salón VIP' (area_id = 5)
+INSERT INTO Mesa (capacidadMesa, esMovil, area_id) VALUES
+(2, FALSE, 5),
+(4, FALSE, 5),
+(6, FALSE, 5),
+(8, FALSE, 5),
+(10, FALSE, 5);
+
+-- Mesas for 'Barra' (area_id = 6)
+INSERT INTO Mesa (capacidadMesa, esMovil, area_id) VALUES
+(1, TRUE, 6),
+(2, TRUE, 6),
+(3, TRUE, 6),
+(4, TRUE, 6),
+(5, TRUE, 6);
+
+-- Mesas for 'Balcón' (area_id = 7)
+INSERT INTO Mesa (capacidadMesa, esMovil, area_id) VALUES
+(2, FALSE, 7),
+(4, FALSE, 7),
+(6, FALSE, 7),
+(2, FALSE, 7),
+(4, FALSE, 7);
+
+-- Mesas for 'Área de Descanso' (area_id = 8)
+INSERT INTO Mesa (capacidadMesa, esMovil, area_id) VALUES
+(2, TRUE, 8),
+(4, TRUE, 8),
+(2, TRUE, 8),
+(4, TRUE, 8),
+(6, TRUE, 8);
+
+-- Mesas for 'Salón de Eventos' (area_id = 9)
+INSERT INTO Mesa (capacidadMesa, esMovil, area_id) VALUES
+(8, FALSE, 9),
+(10, FALSE, 9),
+(12, FALSE, 9),
+(14, FALSE, 9),
+(16, FALSE, 9);
+
+-- Mesas for Cafetería (area_id = 10)
+INSERT INTO Mesa (capacidadMesa, esMovil, area_id) VALUES
+(2, TRUE, 10),
+(4, TRUE, 10),
+(6, TRUE, 10),
+(8, TRUE, 10),
+(10, TRUE, 10);
+
+
+
 ---Functions---
 ---Functions---
 ---Functions---
