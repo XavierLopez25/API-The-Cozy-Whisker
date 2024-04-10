@@ -503,6 +503,21 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+
+CREATE OR REPLACE FUNCTION report_most_orders_time_slot(fecha_inicio DATE, fecha_final DATE)
+RETURNS TABLE(hora INT, cantidad_pedidos INT) AS $$
+BEGIN
+    RETURN QUERY 
+    SELECT EXTRACT(HOUR FROM dp.fecha_ordenado)::INT AS hora, COUNT(*)::INT AS cantidad_pedidos
+    FROM Pedido p
+    JOIN DetallePedido dp ON p.pedido_id = dp.pedido_id
+    WHERE dp.fecha_ordenado BETWEEN fecha_inicio AND fecha_final
+    GROUP BY hora
+    ORDER BY cantidad_pedidos DESC
+    LIMIT 1;
+END;
+$$ LANGUAGE plpgsql;
+
 ---Procedures---
 ---Procedures---
 ---Procedures---
