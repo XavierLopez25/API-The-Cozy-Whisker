@@ -488,6 +488,21 @@ EXCEPTION WHEN NO_DATA_FOUND THEN
 END;
 $$ LANGUAGE plpgsql STRICT SECURITY DEFINER;
 
+
+CREATE OR REPLACE FUNCTION report_most_ordered_dishes(fecha_inicio DATE, fecha_final DATE)
+RETURNS TABLE(platoB_id INT, nombre TEXT, cantidad_pedidos INT) AS $$
+BEGIN
+    RETURN QUERY 
+    SELECT dp.platoB_id, pb.nombre, COUNT(*)::INT AS cantidad_pedidos
+    FROM DetallePedido dp
+    JOIN Pedido p ON dp.pedido_id = p.pedido_id
+    JOIN PlatoBebida pb ON dp.platoB_id = pb.platoBebida_id
+    WHERE dp.fecha_ordenado BETWEEN fecha_inicio AND fecha_final
+    GROUP BY dp.platoB_id, pb.nombre
+    ORDER BY cantidad_pedidos DESC;
+END;
+$$ LANGUAGE plpgsql;
+
 ---Procedures---
 ---Procedures---
 ---Procedures---
