@@ -545,6 +545,20 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+
+CREATE OR REPLACE FUNCTION report_complaints_by_dish(fecha_inicio DATE, fecha_final DATE)
+RETURNS TABLE(platoBebida_id INT, nombre TEXT, total_quejas INT) AS $$
+BEGIN
+    RETURN QUERY 
+    SELECT Queja.platoBebida_id, pb.nombre, COUNT(*)::INT AS total_quejas
+    FROM Queja
+    JOIN PlatoBebida pb ON Queja.platoBebida_id = pb.platoBebida_id
+    WHERE fecha BETWEEN fecha_inicio AND fecha_final
+    GROUP BY Queja.platoBebida_id, pb.nombre
+    ORDER BY total_quejas DESC;
+END;
+$$ LANGUAGE plpgsql;
+
 ---Procedures---
 ---Procedures---
 ---Procedures---
