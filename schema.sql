@@ -469,6 +469,25 @@ END;
 $$ LANGUAGE plpgsql;
 
 
+CREATE OR REPLACE FUNCTION get_empleado_id_by_username_password(_username TEXT, _password TEXT)
+RETURNS INT AS $$
+DECLARE
+    found_empleado_id INT;
+BEGIN
+    -- Example without password hashing
+    -- In production, compare hashed passwords instead
+    SELECT empleado_id INTO found_empleado_id
+    FROM Usuario
+    WHERE usuario = _username AND pwd_md5 = md5(_password); -- Replace _password with the hash function if using hashed passwords
+
+    -- Return the found empleado_id, or NULL if no match was found
+    RETURN found_empleado_id;
+EXCEPTION WHEN NO_DATA_FOUND THEN
+    -- Return NULL if no employee matches the username and password
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql STRICT SECURITY DEFINER;
+
 ---Procedures---
 ---Procedures---
 ---Procedures---
