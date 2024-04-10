@@ -35,11 +35,12 @@ CREATE TABLE Mesa (
 -- Table creation for 'Cuenta'
 CREATE TABLE Cuenta (
     num_cuenta TEXT PRIMARY KEY,
-	mesa_id INT REFERENCES Mesa(mesa_id),
+	  mesa_id INT REFERENCES Mesa(mesa_id),
     estado TEXT,
     fecha_inicio TIMESTAMP,
     fecha_fin TIMESTAMP,
-    personas INT
+    personas INT,
+    cuenta_dividida BOOLEAN
 );
 
 -- Table creation for 'Empleado'
@@ -66,7 +67,7 @@ CREATE TABLE Pago (
     factura_id INT REFERENCES Factura(factura_id),
     monto_efectivo DECIMAL,
     tarjeta BOOL,
-	efectivo BOOL,
+	  efectivo BOOL,
     monto_tarjeta DECIMAL
 );
 
