@@ -518,6 +518,20 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+
+CREATE OR REPLACE FUNCTION report_average_dining_time(_fecha_inicio DATE, _fecha_final DATE)
+RETURNS TABLE(personas INT, tiempo_promedio INTERVAL) AS $$
+BEGIN
+    RETURN QUERY 
+    SELECT cuenta.personas, AVG(cuenta.fecha_fin - cuenta.fecha_inicio) AS tiempo_promedio
+    FROM Cuenta
+    WHERE cuenta.fecha_inicio BETWEEN _fecha_inicio AND _fecha_final
+      AND cuenta.fecha_fin IS NOT NULL
+    GROUP BY cuenta.personas
+    ORDER BY cuenta.personas;
+END;
+$$ LANGUAGE plpgsql;
+
 ---Procedures---
 ---Procedures---
 ---Procedures---
