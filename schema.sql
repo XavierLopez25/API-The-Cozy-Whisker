@@ -35,13 +35,16 @@ CREATE TABLE Mesa (
 -- Table creation for 'Cuenta'
 CREATE TABLE Cuenta (
     num_cuenta TEXT PRIMARY KEY,
-	  mesa_id INT REFERENCES Mesa(mesa_id),
+	mesa_id INT REFERENCES Mesa(mesa_id),
     estado TEXT,
     fecha_inicio TIMESTAMP,
     fecha_fin TIMESTAMP,
     personas INT,
-    cuenta_dividida BOOLEAN
+    cuenta_dividida BOOLEAN DEFAULT FALSE
 );
+
+ALTER TABLE Cuenta ADD COLUMN cuenta_dividida BOOLEAN DEFAULT FALSE;
+
 
 -- Table creation for 'Empleado'
 CREATE TABLE Empleado (
@@ -61,14 +64,15 @@ CREATE TABLE Factura (
     fecha_emision TIMESTAMP
 );
 
+DROP TABLE pago
+
 -- Table creation for 'Pago'
 CREATE TABLE Pago (
     pago_id SERIAL PRIMARY KEY,
     factura_id INT REFERENCES Factura(factura_id),
-    monto_efectivo DECIMAL,
+    monto DECIMAL,
     tarjeta BOOL,
-	  efectivo BOOL,
-    monto_tarjeta DECIMAL
+	efectivo BOOL
 );
 
 -- Table creation for 'PlatoBebida'
@@ -369,32 +373,44 @@ END;
 $$;
 
 
-CREATE OR REPLACE PROCEDURE close_cuenta(mesa_id_arg INT)
+CREATE OR REPLACE PROCEDURE close_cuenta(mesa_id_arg INT, nit_arg TEXT, direccion_arg TEXT, nombre_arg TEXT, _efectivo BOOLEAN, _tarjeta BOOLEAN)
 LANGUAGE plpgsql
 AS $$
 DECLARE
-    num_cuenta_to_close TEXT;
+    num_cuenta_var TEXT;
+    factura_id_generated INT;
+    total_pedido DECIMAL;
+    persons_quantity INT;
+    split_payment BOOLEAN;
 BEGIN
-    -- Select the most recent cuenta associated with the given mesa_id
-    SELECT num_cuenta INTO num_cuenta_to_close
+    -- Fetch the num_cuenta and relevant details based on the provided mesa_id_arg
+    SELECT num_cuenta, personas, cuenta_dividida INTO num_cuenta_var, persons_quantity, split_payment
     FROM Cuenta
-    WHERE mesa_id = mesa_id_arg AND estado != 'Cerrada'
+    WHERE mesa_id = mesa_id_arg AND estado = 'Abierta'
     ORDER BY fecha_inicio DESC
     LIMIT 1;
-
-    -- Check if we have a cuenta to close
-    IF num_cuenta_to_close IS NOT NULL THEN
-        -- Update the selected cuenta to set its estado to 'Cerrada' and set fecha_fin to the current time
-        UPDATE Cuenta
-        SET estado = 'Cerrada', fecha_fin = NOW()
-        WHERE num_cuenta = num_cuenta_to_close;
-
-        -- Raise a notice to indicate success
-        RAISE NOTICE 'Cuenta % cerrada para la mesa %', num_cuenta_to_close, mesa_id_arg;
-    ELSE
-        -- Raise a notice to indicate that no cuenta was found to close
-        RAISE NOTICE 'No open Cuenta found for mesa_id % to close.', mesa_id_arg;
+    
+    IF num_cuenta_var IS NULL THEN
+        RAISE EXCEPTION 'No active Cuenta found for mesa_id %.', mesa_id_arg;
     END IF;
+
+    -- Calculate total_pedido for the specified Cuenta (if applicable)
+    SELECT SUM(dp.cantidad * pb.precio) INTO total_pedido
+    FROM DetallePedido dp
+    JOIN Pedido p ON dp.pedido_id = p.pedido_id
+    JOIN PlatoBebida pb ON dp.platoB_id = pb.platoBebida_id
+    WHERE p.num_cuenta = num_cuenta_var;
+
+    -- Generate factura
+    factura_id_generated := generate_factura(mesa_id_arg, nit_arg, direccion_arg, nombre_arg, total_pedido, persons_quantity);
+
+    -- Close the Cuenta
+    UPDATE Cuenta SET estado = 'Cerrada', fecha_fin = NOW() WHERE num_cuenta = num_cuenta_var;
+
+    -- Generate Pagos based on split_payment and persons_quantity
+    PERFORM generate_pagos(factura_id_generated, total_pedido, persons_quantity, split_payment, _efectivo, _tarjeta);
+
+    RAISE NOTICE 'Cuenta % closed, Factura ID: % generated.', num_cuenta_var, factura_id_generated;
 END;
 $$;
 
@@ -436,6 +452,7 @@ BEGIN
   RAISE NOTICE 'DetallePedido added for Pedido ID: %', pedido_id;
 END;
 $$;
+
 
 CREATE OR REPLACE FUNCTION fetch_detalle_by_tipo(tipo_comida TEXT)
 RETURNS TABLE(detalle_id INT, pedido_id INT, platoB_id INT, cantidad INT, medidaC_id INT, fecha_ordenado TIMESTAMP, Nota TEXT) AS $$
@@ -489,7 +506,70 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION generate_factura(
+    mesa_id_arg INT,
+    nit_arg TEXT,
+    direccion_arg TEXT,
+    nombre_arg TEXT,
+    total_pedido DECIMAL,
+    persons_quantity INT
+)
+RETURNS INT AS $$
+DECLARE
+    num_cuenta_var TEXT;
+    factura_id_generated INT;
+BEGIN
+    -- Fetch the num_cuenta associated with the given mesa_id
+    SELECT num_cuenta INTO num_cuenta_var
+    FROM Cuenta
+    WHERE mesa_id = mesa_id_arg AND estado = 'Abierta'
+    ORDER BY fecha_inicio DESC
+    LIMIT 1;
 
+    -- Check if a num_cuenta has been found
+    IF num_cuenta_var IS NULL THEN
+        RAISE EXCEPTION 'No active Cuenta found for mesa_id %.', mesa_id_arg;
+    END IF;
+
+    -- Insert a new record into the Factura table using the fetched num_cuenta
+    INSERT INTO Factura(cuenta_id, nit, direccion, nombre, fecha_emision)
+    VALUES (num_cuenta_var, nit_arg, direccion_arg, nombre_arg, NOW())
+    RETURNING factura_id INTO factura_id_generated;
+
+    -- Return the generated factura_id
+    RETURN factura_id_generated;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION generate_pagos(
+    factura_id_arg INT, 
+    total_pedido DECIMAL, 
+    persons_quantity INT, 
+    split_payment BOOLEAN, 
+    efectivo BOOLEAN, 
+    tarjeta BOOLEAN
+)
+RETURNS VOID AS $$
+DECLARE
+    amount_per_person NUMERIC;
+BEGIN
+    IF split_payment THEN
+        -- When splitting the payment, divide total_pedido by persons_quantity
+        amount_per_person := total_pedido / persons_quantity;
+        
+        -- Generate individual Pagos for each person
+        FOR i IN 1..persons_quantity LOOP
+            INSERT INTO Pago(factura_id, monto, tarjeta, efectivo)
+            VALUES (factura_id_arg, amount_per_person, tarjeta, efectivo);
+        END LOOP;
+    ELSE
+        -- If not splitting, create one Pago with the total amount
+        INSERT INTO Pago(factura_id, monto, tarjeta, efectivo)
+        VALUES (factura_id_arg, total_pedido, tarjeta, efectivo);
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
 
 
 
