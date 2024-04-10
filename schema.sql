@@ -350,6 +350,125 @@ $$ LANGUAGE plpgsql;
 SELECT register_new_employee('Administrator'::TEXT, 'Administrator'::TEXT, '2024-04-08'::DATE, 'Admin'::TEXT, '1234'::TEXT) AS empleado_id
 
 
+CREATE OR REPLACE FUNCTION generate_factura(
+    mesa_id_arg INT,
+    nit_arg TEXT,
+    direccion_arg TEXT,
+    nombre_arg TEXT,
+    total_pedido DECIMAL,
+    persons_quantity INT
+)
+RETURNS INT AS $$
+DECLARE
+    num_cuenta_var TEXT;
+    factura_id_generated INT;
+BEGIN
+    -- Fetch the num_cuenta associated with the given mesa_id
+    SELECT num_cuenta INTO num_cuenta_var
+    FROM Cuenta
+    WHERE mesa_id = mesa_id_arg AND estado = 'Abierta'
+    ORDER BY fecha_inicio DESC
+    LIMIT 1;
+
+    -- Check if a num_cuenta has been found
+    IF num_cuenta_var IS NULL THEN
+        RAISE EXCEPTION 'No active Cuenta found for mesa_id %.', mesa_id_arg;
+    END IF;
+
+    -- Insert a new record into the Factura table using the fetched num_cuenta
+    INSERT INTO Factura(cuenta_id, nit, direccion, nombre, fecha_emision)
+    VALUES (num_cuenta_var, nit_arg, direccion_arg, nombre_arg, NOW())
+    RETURNING factura_id INTO factura_id_generated;
+
+    -- Return the generated factura_id
+    RETURN factura_id_generated;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION generate_pagos(
+    factura_id_arg INT, 
+    total_pedido DECIMAL, 
+    persons_quantity INT, 
+    split_payment BOOLEAN, 
+    efectivo BOOLEAN, 
+    tarjeta BOOLEAN
+)
+RETURNS VOID AS $$
+DECLARE
+    amount_per_person NUMERIC;
+BEGIN
+    IF split_payment THEN
+        -- When splitting the payment, divide total_pedido by persons_quantity
+        amount_per_person := total_pedido / persons_quantity;
+        
+        -- Generate individual Pagos for each person
+        FOR i IN 1..persons_quantity LOOP
+            INSERT INTO Pago(factura_id, monto, tarjeta, efectivo)
+            VALUES (factura_id_arg, amount_per_person, tarjeta, efectivo);
+        END LOOP;
+    ELSE
+        -- If not splitting, create one Pago with the total amount
+        INSERT INTO Pago(factura_id, monto, tarjeta, efectivo)
+        VALUES (factura_id_arg, total_pedido, tarjeta, efectivo);
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION fetch_detalle_by_tipo(tipo_comida TEXT)
+RETURNS TABLE(detalle_id INT, pedido_id INT, platoB_id INT, cantidad INT, medidaC_id INT, fecha_ordenado TIMESTAMP, Nota TEXT) AS $$
+BEGIN
+    -- Validate input to ensure it's either 'Plato' or 'Bebida'
+    IF tipo_comida NOT IN ('Plato', 'Bebida') THEN
+        RAISE EXCEPTION 'Invalid tipo_comida. Must be ''Plato'' or ''Bebida''.';
+    END IF;
+
+    RETURN QUERY 
+    SELECT d.detalle_id, d.pedido_id, d.platoB_id, d.cantidad, d.medidaC_id, d.fecha_ordenado, d.Nota
+    FROM DetallePedido d
+    INNER JOIN PlatoBebida pb ON d.platoB_id = pb.platoBebida_id
+    WHERE pb.tipo = tipo_comida
+    ORDER BY d.fecha_ordenado ASC;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION calculate_total_payment(mesa_id_arg INT)
+RETURNS NUMERIC AS $$
+DECLARE
+    total_payment NUMERIC := 0;
+BEGIN
+    -- Calculate the total payment for a specified Mesa
+    SELECT SUM(pb.precio * dp.cantidad) INTO total_payment
+    FROM DetallePedido dp
+    INNER JOIN Pedido p ON dp.pedido_id = p.pedido_id
+    INNER JOIN Cuenta c ON p.num_cuenta = c.num_cuenta
+    INNER JOIN PlatoBebida pb ON dp.platoB_id = pb.platoBebida_id
+    WHERE c.mesa_id = mesa_id_arg AND c.estado = 'Cerrada';
+
+    -- Return the total payment
+    RETURN COALESCE(total_payment, 0);
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION after_cuenta_closed()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Check if estado has been updated to 'Cerrada'
+    IF OLD.estado IS DISTINCT FROM NEW.estado AND NEW.estado = 'Cerrada' THEN
+        -- Call the function to calculate total payment for the Mesa associated with the closed Cuenta
+        PERFORM calculate_total_payment(NEW.mesa_id);
+
+        -- Here you can add additional logic, like storing the result, logging, or other actions
+        -- For demonstration purposes, let's raise a notice with the calculated total (replace this with your intended action)
+        RAISE NOTICE 'Total payment calculated for Mesa ID %: %', NEW.mesa_id, calculate_total_payment(NEW.mesa_id);
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
 ---Procedures---
 ---Procedures---
 ---Procedures---
@@ -454,123 +573,40 @@ END;
 $$;
 
 
-CREATE OR REPLACE FUNCTION fetch_detalle_by_tipo(tipo_comida TEXT)
-RETURNS TABLE(detalle_id INT, pedido_id INT, platoB_id INT, cantidad INT, medidaC_id INT, fecha_ordenado TIMESTAMP, Nota TEXT) AS $$
-BEGIN
-    -- Validate input to ensure it's either 'Plato' or 'Bebida'
-    IF tipo_comida NOT IN ('Plato', 'Bebida') THEN
-        RAISE EXCEPTION 'Invalid tipo_comida. Must be ''Plato'' or ''Bebida''.';
-    END IF;
-
-    RETURN QUERY 
-    SELECT d.detalle_id, d.pedido_id, d.platoB_id, d.cantidad, d.medidaC_id, d.fecha_ordenado, d.Nota
-    FROM DetallePedido d
-    INNER JOIN PlatoBebida pb ON d.platoB_id = pb.platoBebida_id
-    WHERE pb.tipo = tipo_comida
-    ORDER BY d.fecha_ordenado ASC;
-END;
-$$ LANGUAGE plpgsql;
-
-
-CREATE OR REPLACE FUNCTION calculate_total_payment(mesa_id_arg INT)
-RETURNS NUMERIC AS $$
-DECLARE
-    total_payment NUMERIC := 0;
-BEGIN
-    -- Calculate the total payment for a specified Mesa
-    SELECT SUM(pb.precio * dp.cantidad) INTO total_payment
-    FROM DetallePedido dp
-    INNER JOIN Pedido p ON dp.pedido_id = p.pedido_id
-    INNER JOIN Cuenta c ON p.num_cuenta = c.num_cuenta
-    INNER JOIN PlatoBebida pb ON dp.platoB_id = pb.platoBebida_id
-    WHERE c.mesa_id = mesa_id_arg AND c.estado = 'Cerrada';
-
-    -- Return the total payment
-    RETURN COALESCE(total_payment, 0);
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE FUNCTION after_cuenta_closed()
-RETURNS TRIGGER AS $$
-BEGIN
-    -- Check if estado has been updated to 'Cerrada'
-    IF OLD.estado IS DISTINCT FROM NEW.estado AND NEW.estado = 'Cerrada' THEN
-        -- Call the function to calculate total payment for the Mesa associated with the closed Cuenta
-        PERFORM calculate_total_payment(NEW.mesa_id);
-
-        -- Here you can add additional logic, like storing the result, logging, or other actions
-        -- For demonstration purposes, let's raise a notice with the calculated total (replace this with your intended action)
-        RAISE NOTICE 'Total payment calculated for Mesa ID %: %', NEW.mesa_id, calculate_total_payment(NEW.mesa_id);
-    END IF;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE FUNCTION generate_factura(
-    mesa_id_arg INT,
+CREATE OR REPLACE PROCEDURE submit_queja_encuesta(
     nit_arg TEXT,
-    direccion_arg TEXT,
-    nombre_arg TEXT,
-    total_pedido DECIMAL,
-    persons_quantity INT
-)
-RETURNS INT AS $$
+    empleado_id_arg INT,
+    platoBebida_id_arg INT,
+    motivo_arg TEXT,
+    clasificacion_arg INT,
+    amabilidad_arg INT,
+    exactitud_arg INT
+) LANGUAGE plpgsql AS $$
 DECLARE
-    num_cuenta_var TEXT;
-    factura_id_generated INT;
+    new_queja_id INT;
 BEGIN
-    -- Fetch the num_cuenta associated with the given mesa_id
-    SELECT num_cuenta INTO num_cuenta_var
-    FROM Cuenta
-    WHERE mesa_id = mesa_id_arg AND estado = 'Abierta'
-    ORDER BY fecha_inicio DESC
-    LIMIT 1;
+    -- Insert into Queja
+    INSERT INTO Queja(nit, empleado_id, platoBebida_id, motivo, clasificacion, fecha)
+    VALUES (nit_arg, 
+            NULLIF(empleado_id_arg, 0), -- Assuming 0 indicates no employee involved
+            NULLIF(platoBebida_id_arg, 0), -- Assuming 0 indicates no Plato/Bebida involved
+            motivo_arg, 
+            clasificacion_arg, 
+            CURRENT_TIMESTAMP)
+    RETURNING queja_id INTO new_queja_id;
 
-    -- Check if a num_cuenta has been found
-    IF num_cuenta_var IS NULL THEN
-        RAISE EXCEPTION 'No active Cuenta found for mesa_id %.', mesa_id_arg;
-    END IF;
-
-    -- Insert a new record into the Factura table using the fetched num_cuenta
-    INSERT INTO Factura(cuenta_id, nit, direccion, nombre, fecha_emision)
-    VALUES (num_cuenta_var, nit_arg, direccion_arg, nombre_arg, NOW())
-    RETURNING factura_id INTO factura_id_generated;
-
-    -- Return the generated factura_id
-    RETURN factura_id_generated;
+    -- Insert into EncuestasSatisfaccion linking the new Queja
+    INSERT INTO EncuestasSatisfaccion(nit, empleado_id, amabilidad, exactitud, fecha, queja_id)
+    VALUES (nit_arg, 
+            NULLIF(empleado_id_arg, 0), -- Assuming 0 indicates no employee to rate, adjust as needed
+            amabilidad_arg, 
+            exactitud_arg, 
+            CURRENT_TIMESTAMP,
+            new_queja_id);
+EXCEPTION WHEN OTHERS THEN
+    RAISE;
 END;
-$$ LANGUAGE plpgsql;
-
-
-CREATE OR REPLACE FUNCTION generate_pagos(
-    factura_id_arg INT, 
-    total_pedido DECIMAL, 
-    persons_quantity INT, 
-    split_payment BOOLEAN, 
-    efectivo BOOLEAN, 
-    tarjeta BOOLEAN
-)
-RETURNS VOID AS $$
-DECLARE
-    amount_per_person NUMERIC;
-BEGIN
-    IF split_payment THEN
-        -- When splitting the payment, divide total_pedido by persons_quantity
-        amount_per_person := total_pedido / persons_quantity;
-        
-        -- Generate individual Pagos for each person
-        FOR i IN 1..persons_quantity LOOP
-            INSERT INTO Pago(factura_id, monto, tarjeta, efectivo)
-            VALUES (factura_id_arg, amount_per_person, tarjeta, efectivo);
-        END LOOP;
-    ELSE
-        -- If not splitting, create one Pago with the total amount
-        INSERT INTO Pago(factura_id, monto, tarjeta, efectivo)
-        VALUES (factura_id_arg, total_pedido, tarjeta, efectivo);
-    END IF;
-END;
-$$ LANGUAGE plpgsql;
-
+$$;
 
 
 ---Triggers---
@@ -579,7 +615,3 @@ $$ LANGUAGE plpgsql;
 ---Triggers---
 ---Triggers---
 ---Triggers---
-CREATE TRIGGER cuenta_closed_trigger
-AFTER UPDATE OF estado ON Cuenta
-FOR EACH ROW
-EXECUTE FUNCTION after_cuenta_closed();
