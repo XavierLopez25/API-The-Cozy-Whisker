@@ -559,6 +559,19 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+
+CREATE OR REPLACE FUNCTION report_server_efficiency_last_6_months()
+RETURNS TABLE(año INT, mes INT, empleado_id INT, prom_amabilidad NUMERIC, prom_exactitud NUMERIC) AS $$
+BEGIN
+    RETURN QUERY 
+    SELECT EXTRACT(YEAR FROM fecha)::INT AS año, EXTRACT(MONTH FROM fecha)::INT AS mes, EncuestasSatisfaccion.empleado_id, AVG(amabilidad) AS prom_amabilidad, AVG(exactitud) AS prom_exactitud
+    FROM EncuestasSatisfaccion
+    WHERE fecha >= NOW() - INTERVAL '6 months'
+    GROUP BY EXTRACT(YEAR FROM fecha), EXTRACT(MONTH FROM fecha), EncuestasSatisfaccion.empleado_id
+    ORDER BY año, mes, EncuestasSatisfaccion.empleado_id;
+END;
+$$ LANGUAGE plpgsql;
+
 ---Procedures---
 ---Procedures---
 ---Procedures---
