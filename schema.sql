@@ -368,21 +368,32 @@ END;
 $$;
 
 
-CREATE OR REPLACE PROCEDURE close_cuenta(num_cuenta_arg TEXT)
+CREATE OR REPLACE PROCEDURE close_cuenta(mesa_id_arg INT)
 LANGUAGE plpgsql
 AS $$
 DECLARE
-	mesaID INT;
+    num_cuenta_to_close TEXT;
 BEGIN
-  	UPDATE Cuenta
-  	SET estado = 'Cerrada', fecha_fin = NOW()
-  	WHERE num_cuenta = num_cuenta_arg;
-	
-	SELECT mesa_id INTO mesaID
-  	FROM Cuenta
- 	WHERE num_cuenta = num_cuenta_arg;
-	
-	RAISE NOTICE 'Cuenta Cerrada para la mesa %', mesaID;
+    -- Select the most recent cuenta associated with the given mesa_id
+    SELECT num_cuenta INTO num_cuenta_to_close
+    FROM Cuenta
+    WHERE mesa_id = mesa_id_arg AND estado != 'Cerrada'
+    ORDER BY fecha_inicio DESC
+    LIMIT 1;
+
+    -- Check if we have a cuenta to close
+    IF num_cuenta_to_close IS NOT NULL THEN
+        -- Update the selected cuenta to set its estado to 'Cerrada' and set fecha_fin to the current time
+        UPDATE Cuenta
+        SET estado = 'Cerrada', fecha_fin = NOW()
+        WHERE num_cuenta = num_cuenta_to_close;
+
+        -- Raise a notice to indicate success
+        RAISE NOTICE 'Cuenta % cerrada para la mesa %', num_cuenta_to_close, mesa_id_arg;
+    ELSE
+        -- Raise a notice to indicate that no cuenta was found to close
+        RAISE NOTICE 'No open Cuenta found for mesa_id % to close.', mesa_id_arg;
+    END IF;
 END;
 $$;
 
