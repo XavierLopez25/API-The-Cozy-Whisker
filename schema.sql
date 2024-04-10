@@ -532,6 +532,19 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+
+CREATE OR REPLACE FUNCTION report_complaints_by_person(fecha_inicio DATE, fecha_final DATE)
+RETURNS TABLE(nit TEXT, total_quejas INT) AS $$
+BEGIN
+    RETURN QUERY 
+    SELECT q.nit, COUNT(*)::INT AS total_quejas
+    FROM Queja q
+    WHERE fecha BETWEEN fecha_inicio AND fecha_final
+    GROUP BY q.nit
+    ORDER BY total_quejas DESC;
+END;
+$$ LANGUAGE plpgsql;
+
 ---Procedures---
 ---Procedures---
 ---Procedures---
