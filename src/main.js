@@ -1,6 +1,12 @@
 import express from 'express';
 
-import { getAllTables, registerNewEmployee, loginUser, insertNewCuenta } from './db.js';
+import {
+  getAllTables,
+  registerNewEmployee,
+  loginUser,
+  insertNewCuenta,
+  closeCuenta,
+} from './db.js';
 import bodyParser from 'body-parser';
 
 // Inicializar la aplicación Express
@@ -57,6 +63,18 @@ app.post('/insert-new-cuenta', async (req, res) => {
     res.status(200).json({ status: 'success', message: 'Cuenta creada con éxito' });
   } catch (error) {
     console.error * ('Error executing insert_new_cuenta procedure > ', error.stack);
+    res.status(500).json({ status: 'error', message: 'Internal Server Error' });
+  }
+});
+
+app.post('/close-cuenta', async (req, res) => {
+  const { mesa_id_arg, nit_arg, dir_arg, nombre_arg, efectivo_arg, tarjeta_arg } = req.body;
+
+  try {
+    await closeCuenta(mesa_id_arg, nit_arg, dir_arg, nombre_arg, efectivo_arg, tarjeta_arg);
+    res.status(200).json({ status: 'success', message: 'Cuenta cerrada con éxito' });
+  } catch (error) {
+    console.error('Error executing close_cuenta procedure > ', error.stack);
     res.status(500).json({ status: 'error', message: 'Internal Server Error' });
   }
 });
