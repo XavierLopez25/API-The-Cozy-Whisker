@@ -343,7 +343,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 --Add Administator
-SELECT register_new_employee('Administrator'::TEXT, 'Administrator'::TEXT, '2024-04-08'::DATE, 'Admin'::TEXT, '1234'::TEXT) AS empleado_id
+SELECT register_new_employee('Administrator'::TEXT, 'Administrator'::TEXT, '2024-04-08'::DATE, 'Admin'::TEXT, '1234'::TEXT) AS empleado_id;
 
 
 CREATE OR REPLACE FUNCTION generate_factura(
