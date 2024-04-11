@@ -61,7 +61,6 @@ CREATE TABLE Factura (
     fecha_emision TIMESTAMP
 );
 
-DROP TABLE pago
 
 -- Table creation for 'Pago'
 CREATE TABLE Pago (
