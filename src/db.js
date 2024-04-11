@@ -2,7 +2,7 @@ import conn from './conn.js';
 
 //Get all tables
 export async function getAllTables() {
-  const result = await conn.query(`SELECT * FROM Cuenta;`);
+  const result = await conn.query(`SELECT * FROM PlatoBebida;`);
   return result.rows;
 }
 
@@ -31,6 +31,11 @@ export async function closeCuenta(mesaId, nit, dir, nombre, efectivo, tarjeta) {
     `CALL close_cuenta($1::INT, $2::TEXT, $3::TEXT, $4::TEXT, $5::BOOLEAN, $6::BOOLEAN);`,
     [mesaId, nit, dir, nombre, efectivo, tarjeta],
   );
+}
+
+export async function getFoodByType(type) {
+  const result = await conn.query(`SELECT * FROM PlatoBebida WHERE tipo = $1;`, [type]);
+  return result.rows;
 }
 
 //SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'
