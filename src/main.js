@@ -6,6 +6,7 @@ import {
   loginUser,
   insertNewCuenta,
   closeCuenta,
+  getFoodByType,
 } from './db.js';
 import bodyParser from 'body-parser';
 
@@ -75,6 +76,19 @@ app.post('/close-cuenta', async (req, res) => {
     res.status(200).json({ status: 'success', message: 'Cuenta cerrada con éxito' });
   } catch (error) {
     console.error('Error executing close_cuenta procedure > ', error.stack);
+    res.status(500).json({ status: 'error', message: 'Internal Server Error' });
+  }
+});
+
+app.get('/food-by-type', async (req, res) => {
+  const { type } = req.query;
+
+  try {
+    const result = await getFoodByType(type);
+    console.log(result);
+    res.status(200).json({ status: 'success', data: result });
+  } catch (error) {
+    console.error('Error executing getFoodByType function > ', error.stack);
     res.status(500).json({ status: 'error', message: 'Internal Server Error' });
   }
 });
