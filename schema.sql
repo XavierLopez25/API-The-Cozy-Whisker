@@ -40,11 +40,8 @@ CREATE TABLE Cuenta (
     fecha_inicio TIMESTAMP,
     fecha_fin TIMESTAMP,
     personas INT,
-    cuenta_dividida BOOLEAN DEFAULT FALSE
+    cuenta_dividida BOOLEAN DEFAULT TRUE
 );
-
-ALTER TABLE Cuenta ADD COLUMN cuenta_dividida BOOLEAN DEFAULT FALSE;
-
 
 -- Table creation for 'Empleado'
 CREATE TABLE Empleado (
