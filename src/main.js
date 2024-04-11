@@ -1,7 +1,6 @@
 import express from 'express';
-import pool from './conn.js';
 
-import { getAllTables, loginUser, registerNewEmployee } from './db.js';
+import { getAllTables, registerNewEmployee, loginUser, insertNewCuenta } from './db.js';
 import bodyParser from 'body-parser';
 
 // Inicializar la aplicación Express
@@ -23,12 +22,13 @@ app.post('/register', async (req, res) => {
   const { name, role, startDate, username, password } = req.body;
   try {
     const result = await registerNewEmployee(name, role, startDate, username, password);
-    res.json({
+    console.log('TEST', result);
+    res.status(201).json({
       status: 'success',
       employeeId: result.rows[0].register_new_employee,
     });
   } catch (error) {
-    console.error('Error executing register_new_employee function', error.stack);
+    console.error('Error executing register_new_employee function >', error.stack);
     res.status(500).json({ status: 'error', message: 'Internal Server Error' });
   }
 });
@@ -36,17 +36,27 @@ app.post('/register', async (req, res) => {
 // User Login Endpoint
 app.post('/login', async (req, res) => {
   const { username, password } = req.body;
-  console.log('TEST', username);
-  console.log('TEST', password);
   try {
     const result = await loginUser(username, password);
     if (result.rows.length > 0) {
-      res.json({ status: 'success', user: result.rows[0] });
+      res.status(201).json({ status: 'success', user: result.rows[0] });
     } else {
       res.status(401).json({ status: 'fail', message: 'Invalid username or password' });
     }
   } catch (error) {
-    console.error('Error executing user_login function', error.stack);
+    console.error('Error executing user_login function > ', error.stack);
+    res.status(500).json({ status: 'error', message: 'Internal Server Error' });
+  }
+});
+
+app.post('/insert-new-cuenta', async (req, res) => {
+  const { mesa_id_arg, personas_arg } = req.body;
+
+  try {
+    await insertNewCuenta(mesa_id_arg, personas_arg);
+    res.status(200).json({ status: 'success', message: 'Cuenta creada con éxito' });
+  } catch (error) {
+    console.error * ('Error executing insert_new_cuenta procedure > ', error.stack);
     res.status(500).json({ status: 'error', message: 'Internal Server Error' });
   }
 });
