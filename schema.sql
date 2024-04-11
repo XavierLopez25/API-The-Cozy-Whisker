@@ -434,41 +434,6 @@ END;
 $$ LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE FUNCTION calculate_total_payment(mesa_id_arg INT)
-RETURNS NUMERIC AS $$
-DECLARE
-    total_payment NUMERIC := 0;
-BEGIN
-    -- Calculate the total payment for a specified Mesa
-    SELECT SUM(pb.precio * dp.cantidad) INTO total_payment
-    FROM DetallePedido dp
-    INNER JOIN Pedido p ON dp.pedido_id = p.pedido_id
-    INNER JOIN Cuenta c ON p.num_cuenta = c.num_cuenta
-    INNER JOIN PlatoBebida pb ON dp.platoB_id = pb.platoBebida_id
-    WHERE c.mesa_id = mesa_id_arg AND c.estado = 'Cerrada';
-
-    -- Return the total payment
-    RETURN COALESCE(total_payment, 0);
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE FUNCTION after_cuenta_closed()
-RETURNS TRIGGER AS $$
-BEGIN
-    -- Check if estado has been updated to 'Cerrada'
-    IF OLD.estado IS DISTINCT FROM NEW.estado AND NEW.estado = 'Cerrada' THEN
-        -- Call the function to calculate total payment for the Mesa associated with the closed Cuenta
-        PERFORM calculate_total_payment(NEW.mesa_id);
-
-        -- Here you can add additional logic, like storing the result, logging, or other actions
-        -- For demonstration purposes, let's raise a notice with the calculated total (replace this with your intended action)
-        RAISE NOTICE 'Total payment calculated for Mesa ID %: %', NEW.mesa_id, calculate_total_payment(NEW.mesa_id);
-    END IF;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-
 CREATE OR REPLACE FUNCTION get_empleado_id_by_username_password(_username TEXT, _password TEXT)
 RETURNS INT AS $$
 DECLARE
