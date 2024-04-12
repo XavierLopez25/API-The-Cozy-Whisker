@@ -9,6 +9,7 @@ import {
   getFoodByType,
   getRoleName,
   fetchAllOrders,
+  createOrder,
 } from './db.js';
 import bodyParser from 'body-parser';
 
@@ -111,9 +112,21 @@ app.get('/food-by-type', async (req, res) => {
   }
 });
 
-app.get('/fetch-all-orders', async (req, res) => {
-  const { tipo_comida } = req.query;
+app.post('/create-order', async (req, res) => {
+  const { mesa_id_arg, platoB_id_arg, cantidad_arg, medidaC_id_arg, nota_arg } = req.body;
 
+  try {
+    await createOrder(mesa_id_arg, platoB_id_arg, cantidad_arg, medidaC_id_arg, nota_arg);
+    res.status(201).json({ status: 'success', message: 'Pedido creado con éxito' });
+  } catch (error) {
+    console.error('Error executing createOrder procedure > ', error.stack);
+    res.status(500).json({ status: 'error', message: 'Internal Server Error' });
+  }
+});
+
+app.post('/fetch-all-orders', async (req, res) => {
+  const { tipo_comida } = req.body;
+  console.log(tipo_comida);
   try {
     const result = await fetchAllOrders(tipo_comida);
     console.log(result);
