@@ -638,30 +638,33 @@ CREATE OR REPLACE PROCEDURE create_pedido_and_detalle_with_mesa_id(
 LANGUAGE plpgsql
 AS $$
 DECLARE
-  new_num_cuenta TEXT;
+  num_cuenta_var TEXT;
   pedido_id INT;
 BEGIN
-  -- Generate a new num_cuenta
-  SELECT INTO new_num_cuenta COALESCE(MAX(CAST(num_cuenta AS INTEGER)), 0) + 1 FROM Cuenta WHERE mesa_id = mesa_id_arg;
-  
-  -- Insert a new Cuenta if necessary
-  INSERT INTO Cuenta(num_cuenta, mesa_id, estado, fecha_inicio, personas)
-  VALUES (new_num_cuenta, mesa_id_arg, 'Abierta', NOW(), 1)
-  ON CONFLICT (num_cuenta) DO NOTHING;
+  -- Buscar la última cuenta abierta para la mesa_id dada
+  SELECT num_cuenta INTO num_cuenta_var
+  FROM Cuenta
+  WHERE mesa_id = mesa_id_arg AND estado = 'Abierta'
+  ORDER BY fecha_inicio DESC
+  LIMIT 1;
 
-  -- Check for an existing Pedido for the new num_cuenta
-  SELECT Pedido.pedido_id INTO pedido_id FROM Pedido WHERE num_cuenta = new_num_cuenta LIMIT 1;
-  
-  -- If no Pedido exists, create a new one
-  IF pedido_id IS NULL THEN
-    INSERT INTO Pedido(num_cuenta) VALUES (new_num_cuenta) RETURNING Pedido.pedido_id INTO pedido_id;
+  -- Si no existe tal cuenta, crear una nueva
+  IF num_cuenta_var IS NULL THEN
+    SELECT INTO num_cuenta_var COALESCE(MAX(CAST(num_cuenta AS INTEGER)), 0) + 1 FROM Cuenta;
+    INSERT INTO Cuenta(num_cuenta, mesa_id, estado, fecha_inicio, personas)
+    VALUES (num_cuenta_var, mesa_id_arg, 'Abierta', NOW(), 1);
   END IF;
   
-  -- Insert into DetallePedido
+  -- Verificar si existe un Pedido para esta cuenta. Si no, crear uno nuevo.
+  SELECT Pedido.pedido_id INTO pedido_id FROM Pedido WHERE num_cuenta = num_cuenta_var LIMIT 1;
+  IF pedido_id IS NULL THEN
+    INSERT INTO Pedido(num_cuenta) VALUES (num_cuenta_var) RETURNING Pedido.pedido_id INTO pedido_id;
+  END IF;
+  
+  -- Insertar en DetallePedido
   INSERT INTO DetallePedido(pedido_id, platoB_id, cantidad, medidaC_id, fecha_ordenado, Nota) 
   VALUES (pedido_id, platoB_id_arg, cantidad_arg, medidaC_id_arg, NOW(), nota_arg);
   
-  -- Notify the user
   RAISE NOTICE 'DetallePedido added for Pedido ID: %', pedido_id;
 END;
 $$;
