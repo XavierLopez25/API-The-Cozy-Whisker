@@ -584,6 +584,8 @@ BEGIN
     JOIN PlatoBebida pb ON dp.platoB_id = pb.platoBebida_id
     WHERE p.num_cuenta = num_cuenta_var;
 
+    total_pedido := total_pedido + (total_pedido * 0.10);
+
     -- Generate factura
     factura_id_generated := generate_factura(mesa_id_arg, nit_arg, direccion_arg, nombre_arg, total_pedido, persons_quantity);
 
