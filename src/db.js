@@ -31,6 +31,11 @@ export async function getRoleName(username, password) {
   return result;
 }
 
+export async function listEmployees() {
+  const result = await conn.query(`SELECT empleado_id, nombre, rol FROM Empleado;`);
+  return result.rows;
+}
+
 export async function insertNewCuenta(mesaId, personas) {
   await conn.query(`CALL insert_new_cuenta($1::INT, $2::INT);`, [mesaId, personas]);
 }
