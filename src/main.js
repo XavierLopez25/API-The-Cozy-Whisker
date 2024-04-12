@@ -16,6 +16,7 @@ import {
   fetchIndividualPayments,
   getAvailableMesas,
   getOccupiedMesas,
+  submitQuejaEncuesta,
 } from './db.js';
 import bodyParser from 'body-parser';
 
@@ -211,6 +212,34 @@ app.get('/get-occupied-mesas', async (req, res) => {
     res.status(200).json({ status: 'success', data: result });
   } catch (error) {
     console.error('Error executing getOccupiedMesas function > ', error.stack);
+    res.status(500).json({ status: 'error', message: 'Internal Server Error' });
+  }
+});
+
+app.post('/submit-queja-encuesta', async (req, res) => {
+  const {
+    nit_arg,
+    empleado_id_arg,
+    platoBebida_id_arg,
+    motivo_arg,
+    clasificacion_arg,
+    amabilidad_arg,
+    exactitud_arg,
+  } = req.body;
+
+  try {
+    await submitQuejaEncuesta(
+      nit_arg,
+      empleado_id_arg,
+      platoBebida_id_arg,
+      motivo_arg,
+      clasificacion_arg,
+      amabilidad_arg,
+      exactitud_arg,
+    );
+    res.status(201).json({ status: 'success', message: 'Queja y encuesta enviada con éxito' });
+  } catch (error) {
+    console.error('Error executing submitQuejaEncuesta procedure > ', error.stack);
     res.status(500).json({ status: 'error', message: 'Internal Server Error' });
   }
 });
