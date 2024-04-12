@@ -11,6 +11,8 @@ import {
   fetchAllOrders,
   createOrder,
   getFoodPlates,
+  fetchOrderCheckout,
+  fetchTotalFinalOrder,
 } from './db.js';
 import bodyParser from 'body-parser';
 
@@ -145,6 +147,32 @@ app.post('/fetch-all-orders', async (req, res) => {
     res.status(200).json({ status: 'success', data: result });
   } catch (error) {
     console.error('Error executing fetchAllOrders function > ', error.stack);
+    res.status(500).json({ status: 'error', message: 'Internal Server Error' });
+  }
+});
+
+app.post('/fetch-order-checkout', async (req, res) => {
+  const { mesa_id_arg } = req.body;
+  console.log(mesa_id_arg);
+  try {
+    const result = await fetchOrderCheckout(mesa_id_arg);
+    console.log(result);
+    res.status(200).json({ status: 'success', data: result });
+  } catch (error) {
+    console.error('Error executing fetchOrderCheckout function > ', error.stack);
+    res.status(500).json({ status: 'error', message: 'Internal Server Error' });
+  }
+});
+
+app.post('/fetch-total-final-order', async (req, res) => {
+  const { mesa_id_arg } = req.body;
+  console.log(mesa_id_arg);
+  try {
+    const result = await fetchTotalFinalOrder(mesa_id_arg);
+    console.log(result);
+    res.status(200).json({ status: 'success', data: result });
+  } catch (error) {
+    console.error('Error executing fetchTotalFinalOrder function > ', error.stack);
     res.status(500).json({ status: 'error', message: 'Internal Server Error' });
   }
 });
