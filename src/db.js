@@ -59,6 +59,13 @@ export async function getFoodById(id) {
   return result.rows;
 }
 
+export async function getFoodMeasures() {
+  const result = await conn.query(
+    `SELECT MC.medC_id AS medidaC_id, PB.nombre AS comida, M.descripcion AS tamaño FROM MedidaComida MC INNER JOIN PlatoBebida PB ON MC.platoBebida_id = PB.platoBebida_id INNER JOIN Medida M ON MC.medida_id = M.medida_id ORDER BY MC.medC_id;`,
+  );
+  return result.rows;
+}
+
 export async function fetchAllOrders(tipo_comida) {
   const result = await conn.query(`SELECT * FROM fetch_detalle_by_tipo($1::TEXT);`, [tipo_comida]);
   return result.rows;
