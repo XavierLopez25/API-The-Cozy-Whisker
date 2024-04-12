@@ -430,7 +430,7 @@ BEGIN
     
     -- Calcula los detalles del pedido para el num_cuenta obtenido
     RETURN QUERY 
-    SELECT pb.platoBebida_id, pb.nombre, pb.precio, (dp.cantidad * pb.precio) as subtotal
+    SELECT pb.platoBebida_id, pb.nombre, pb.precio, dp.cantidad, (dp.cantidad * pb.precio) as subtotal
     FROM DetallePedido dp
     JOIN Pedido p ON dp.pedido_id = p.pedido_id
     JOIN PlatoBebida pb ON dp.platoB_id = pb.platoBebida_id
