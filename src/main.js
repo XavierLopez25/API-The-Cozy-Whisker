@@ -7,6 +7,7 @@ import {
   insertNewCuenta,
   closeCuenta,
   getFoodByType,
+  getRoleName,
 } from './db.js';
 import bodyParser from 'body-parser';
 
@@ -52,6 +53,22 @@ app.post('/login', async (req, res) => {
     }
   } catch (error) {
     console.error('Error executing user_login function > ', error.stack);
+    res.status(500).json({ status: 'error', message: 'Internal Server Error' });
+  }
+});
+
+app.get('/get-role-name', async (req, res) => {
+  const { username, password } = req.body;
+  try {
+    const result = await getRoleName(username, password);
+    console.log('TEST', result.rows[0]);
+    if (result.rows.length > 0) {
+      res.status(200).json({ status: 'success', data: result.rows[0] });
+    } else {
+      res.status(401).json({ status: 'fail', message: 'Invalid username or password' });
+    }
+  } catch (error) {
+    console.error('Error executing getRoleName function > ', error.stack);
     res.status(500).json({ status: 'error', message: 'Internal Server Error' });
   }
 });
