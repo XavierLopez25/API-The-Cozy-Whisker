@@ -190,4 +190,9 @@ export async function reportComplaintsByDish(fecha_inicio, fecha_fin) {
   return result.rows;
 }
 
+export async function reportServerEfficiencyLast6Months() {
+  const result = await conn.query(`SELECT * FROM report_server_efficiency_last_6_months();`);
+  return result.rows;
+}
+
 //SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'
