@@ -412,6 +412,34 @@ END;
 $$ LANGUAGE plpgsql;
 
 
+CREATE OR REPLACE FUNCTION calculate_order_details_for_latest_order(mesa_id_arg INT)
+RETURNS TABLE(platoBebida_id INT, platoBebidaNombre TEXT, precio_unitario DECIMAL, subtotal DECIMAL) AS $$
+DECLARE
+    num_cuenta_var TEXT;
+BEGIN
+    -- Obtener el num_cuenta con la fecha de cierre más reciente para la mesa_id dada
+    SELECT num_cuenta INTO num_cuenta_var
+    FROM Cuenta
+    WHERE mesa_id = mesa_id_arg AND estado = 'Cerrada'
+    ORDER BY fecha_fin DESC
+    LIMIT 1;
+
+    IF num_cuenta_var IS NULL THEN
+        RAISE EXCEPTION 'No closed Cuenta found for mesa_id %.', mesa_id_arg;
+    END IF;
+    
+    -- Calcula los detalles del pedido para el num_cuenta obtenido
+    RETURN QUERY 
+    SELECT pb.platoBebida_id, pb.nombre, pb.precio, (dp.cantidad * pb.precio) as subtotal
+    FROM DetallePedido dp
+    JOIN Pedido p ON dp.pedido_id = p.pedido_id
+    JOIN PlatoBebida pb ON dp.platoB_id = pb.platoBebida_id
+    WHERE p.num_cuenta = num_cuenta_var
+    ORDER BY pb.platoBebida_id;
+END;
+$$ LANGUAGE plpgsql;
+
+
 CREATE OR REPLACE FUNCTION fetch_detalle_by_tipo(tipo_comida TEXT)
 RETURNS TABLE(detalle_id INT, pedido_id INT, platoB_id INT, cantidad INT, medidaC_id INT, fecha_ordenado TIMESTAMP, Nota TEXT) AS $$
 BEGIN
