@@ -22,6 +22,15 @@ export async function registerNewEmployee(name, role, startDate, username, passw
   return result;
 }
 
+export async function getRoleName(username, password) {
+  const result = await conn.query(
+    `SELECT e.nombre, e.rol FROM Empleado e INNER JOIN Usuario u ON e.empleado_id = u.empleado_id WHERE u.usuario = $1 AND u.pwd_md5 = MD5($2);`,
+    [username, password],
+  );
+
+  return result;
+}
+
 export async function insertNewCuenta(mesaId, personas) {
   await conn.query(`CALL insert_new_cuenta($1::INT, $2::INT);`, [mesaId, personas]);
 }
