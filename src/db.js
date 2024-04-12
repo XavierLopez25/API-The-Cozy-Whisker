@@ -2,7 +2,7 @@ import conn from './conn.js';
 
 //Get all tables
 export async function getAllTables() {
-  const result = await conn.query(`SELECT * FROM detallepedido;`);
+  const result = await conn.query(`SELECT * FROM Empleado;`);
   return result.rows;
 }
 
@@ -81,6 +81,14 @@ export async function fetchOrderCheckout(mesa_id_arg) {
 export async function fetchTotalFinalOrder(mesa_id_arg) {
   const result = await conn.query(
     `SELECT SUM(subtotal) * 1.10 AS total_final FROM calculate_order_details_for_latest_order($1::INT);`,
+    [mesa_id_arg],
+  );
+  return result.rows;
+}
+
+export async function fetchIndividualPayments(mesa_id_arg) {
+  const result = await conn.query(
+    `SELECT monto FROM Pago WHERE Pago.factura_id = (SELECT factura_id FROM Factura WHERE cuenta_id = (SELECT num_cuenta FROM Cuenta WHERE mesa_id = $1 AND estado = 'Cerrada' ORDER BY fecha_fin DESC LIMIT 1) ORDER BY fecha_emision DESC LIMIT 1)`,
     [mesa_id_arg],
   );
   return result.rows;
