@@ -85,6 +85,17 @@ app.get('/get-role-name', async (req, res) => {
   }
 });
 
+app.get('/list-employees', async (req, res) => {
+  try {
+    const result = await listEmployees();
+    console.log(result);
+    res.status(200).json({ status: 'success', data: result });
+  } catch (error) {
+    console.error('Error executing listEmployees function > ', error.stack);
+    res.status(500).json({ status: 'error', message: 'Internal Server Error' });
+  }
+});
+
 app.post('/insert-new-cuenta', async (req, res) => {
   const { mesa_id_arg, personas_arg } = req.body;
 
