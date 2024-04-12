@@ -38,6 +38,12 @@ This guide walks you through the process of setting up and running your API Node
    ```bash
    docker run --name postgresql -p 5432:5432 postgres_image
    ```
+4. After you run your image you'll see the PostgreSQL logs, when you for somewhat reason you stop it using `Ctrl + C` in the bash, you can run it again, as explained below, but you won't be able to see the logs again, so you will have to do:
+
+```bash
+   docker logs -f CONTAINER_ID
+```
+   The flag `-f` keeps the PostgreSQL logs on screen, so you don't have to be doing `docker logs CONTAINER_ID` every time you want to see the database logs.
 
 ### Managing Your PostgreSQL Container
 
