@@ -13,6 +13,7 @@ import {
   getFoodPlates,
   fetchOrderCheckout,
   fetchTotalFinalOrder,
+  fetchIndividualPayments,
 } from './db.js';
 import bodyParser from 'body-parser';
 
@@ -173,6 +174,19 @@ app.post('/fetch-total-final-order', async (req, res) => {
     res.status(200).json({ status: 'success', data: result });
   } catch (error) {
     console.error('Error executing fetchTotalFinalOrder function > ', error.stack);
+    res.status(500).json({ status: 'error', message: 'Internal Server Error' });
+  }
+});
+
+app.post('/fetch-individual-payments', async (req, res) => {
+  const { mesa_id_arg } = req.body;
+  console.log(mesa_id_arg);
+  try {
+    const result = await fetchIndividualPayments(mesa_id_arg);
+    console.log(result[0]);
+    res.status(200).json({ status: 'success', data: result });
+  } catch (error) {
+    console.error('Error executing fetchIndividualPayments function > ', error.stack);
     res.status(500).json({ status: 'error', message: 'Internal Server Error' });
   }
 });
