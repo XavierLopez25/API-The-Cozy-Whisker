@@ -20,6 +20,7 @@ import {
   getFoodById,
   getFoodMeasures,
   listEmployees,
+  reportMostOrderedDishes,
 } from './db.js';
 import bodyParser from 'body-parser';
 
@@ -278,6 +279,19 @@ app.post('/submit-queja-encuesta', async (req, res) => {
     res.status(201).json({ status: 'success', message: 'Queja y encuesta enviada con éxito' });
   } catch (error) {
     console.error('Error executing submitQuejaEncuesta procedure > ', error.stack);
+    res.status(500).json({ status: 'error', message: 'Internal Server Error' });
+  }
+});
+
+app.post('/report-most-ordered-dishes', async (req, res) => {
+  const { fecha_inicio, fecha_fin } = req.body;
+
+  try {
+    const result = await reportMostOrderedDishes(fecha_inicio, fecha_fin);
+    console.log(result);
+    res.status(200).json({ status: 'success', data: result });
+  } catch (error) {
+    console.error('Error executing reportMostOrderedDishes function > ', error.stack);
     res.status(500).json({ status: 'error', message: 'Internal Server Error' });
   }
 });
