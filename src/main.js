@@ -18,6 +18,8 @@ import {
   getOccupiedMesas,
   submitQuejaEncuesta,
   getFoodById,
+  getFoodMeasures,
+  listEmployees,
 } from './db.js';
 import bodyParser from 'body-parser';
 
@@ -140,6 +142,17 @@ app.get('/food-plates', async (req, res) => {
     res.status(200).json({ status: 'success', data: result });
   } catch (error) {
     console.error('Error executing getFoodPlates function > ', error.stack);
+    res.status(500).json({ status: 'error', message: 'Internal Server Error' });
+  }
+});
+
+app.get('/food-measures', async (req, res) => {
+  try {
+    const result = await getFoodMeasures();
+    console.log(result);
+    res.status(200).json({ status: 'success', data: result });
+  } catch (error) {
+    console.error('Error executing getFoodMeasures function > ', error.stack);
     res.status(500).json({ status: 'error', message: 'Internal Server Error' });
   }
 });
