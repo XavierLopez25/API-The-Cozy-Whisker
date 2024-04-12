@@ -52,6 +52,13 @@ export async function getFoodPlates() {
   return result.rows;
 }
 
+export async function getFoodById(id) {
+  const result = await conn.query(`SELECT nombre FROM PlatoBebida WHERE platobebida_id = $1;`, [
+    id,
+  ]);
+  return result.rows;
+}
+
 export async function fetchAllOrders(tipo_comida) {
   const result = await conn.query(`SELECT * FROM fetch_detalle_by_tipo($1::TEXT);`, [tipo_comida]);
   return result.rows;
