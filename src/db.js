@@ -2,7 +2,7 @@ import conn from './conn.js';
 
 //Get all tables
 export async function getAllTables() {
-  const result = await conn.query(`SELECT * FROM Empleado;`);
+  const result = await conn.query(`SELECT * FROM EncuestasSatisfaccion;`);
   return result.rows;
 }
 
@@ -106,6 +106,29 @@ export async function getOccupiedMesas() {
     `SELECT mesa_id, esmovil, Area.nombre, capacidadmesa AS nombre_area FROM Mesa INNER JOIN Area ON Mesa.area_id = Area.area_id WHERE EXISTS (SELECT 1 FROM Cuenta WHERE Cuenta.mesa_id = Mesa.mesa_id AND Cuenta.estado = 'Abierta');`,
   );
   return result.rows;
+}
+
+export async function submitQuejaEncuesta(
+  nit_arg,
+  empleado_id_arg,
+  platoBebida_id_arg,
+  motivo_arg,
+  clasificacion_arg,
+  amabilidad_arg,
+  exactitud_arg,
+) {
+  await conn.query(
+    `CALL submit_queja_encuesta($1::TEXT, $2::INT, $3::INT, $4::TEXT, $5::INT, $6::INT, $7::INT);`,
+    [
+      nit_arg,
+      empleado_id_arg,
+      platoBebida_id_arg,
+      motivo_arg,
+      clasificacion_arg,
+      amabilidad_arg,
+      exactitud_arg,
+    ],
+  );
 }
 
 //SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'
