@@ -70,4 +70,20 @@ export async function createOrder(
   );
 }
 
+export async function fetchOrderCheckout(mesa_id_arg) {
+  const result = await conn.query(
+    `SELECT * FROM calculate_order_details_for_latest_order($1::INT);`,
+    [mesa_id_arg],
+  );
+  return result.rows;
+}
+
+export async function fetchTotalFinalOrder(mesa_id_arg) {
+  const result = await conn.query(
+    `SELECT SUM(subtotal) * 1.10 AS total_final FROM calculate_order_details_for_latest_order($1::INT);`,
+    [mesa_id_arg],
+  );
+  return result.rows;
+}
+
 //SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'
