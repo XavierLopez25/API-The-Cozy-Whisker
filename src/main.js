@@ -15,6 +15,7 @@ import {
   fetchTotalFinalOrder,
   fetchIndividualPayments,
   getAvailableMesas,
+  getOccupiedMesas,
 } from './db.js';
 import bodyParser from 'body-parser';
 
@@ -199,6 +200,17 @@ app.get('/get-available-mesas', async (req, res) => {
     res.status(200).json({ status: 'success', data: result });
   } catch (error) {
     console.error('Error executing getAvailableMesas function > ', error.stack);
+    res.status(500).json({ status: 'error', message: 'Internal Server Error' });
+  }
+});
+
+app.get('/get-occupied-mesas', async (req, res) => {
+  try {
+    const result = await getOccupiedMesas();
+    console.log(result);
+    res.status(200).json({ status: 'success', data: result });
+  } catch (error) {
+    console.error('Error executing getOccupiedMesas function > ', error.stack);
     res.status(500).json({ status: 'error', message: 'Internal Server Error' });
   }
 });
