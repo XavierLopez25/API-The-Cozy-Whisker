@@ -10,6 +10,7 @@ import {
   getRoleName,
   fetchAllOrders,
   createOrder,
+  getFoodPlates,
 } from './db.js';
 import bodyParser from 'body-parser';
 
@@ -108,6 +109,17 @@ app.get('/food-by-type', async (req, res) => {
     res.status(200).json({ status: 'success', data: result });
   } catch (error) {
     console.error('Error executing getFoodByType function > ', error.stack);
+    res.status(500).json({ status: 'error', message: 'Internal Server Error' });
+  }
+});
+
+app.get('/food-plates', async (req, res) => {
+  try {
+    const result = await getFoodPlates();
+    console.log(result);
+    res.status(200).json({ status: 'success', data: result });
+  } catch (error) {
+    console.error('Error executing getFoodPlates function > ', error.stack);
     res.status(500).json({ status: 'error', message: 'Internal Server Error' });
   }
 });
