@@ -413,7 +413,7 @@ $$ LANGUAGE plpgsql;
 
 
 CREATE OR REPLACE FUNCTION calculate_order_details_for_latest_order(mesa_id_arg INT)
-RETURNS TABLE(platoBebida_id INT, platoBebidaNombre TEXT, precio_unitario DECIMAL, subtotal DECIMAL) AS $$
+RETURNS TABLE(platoBebida_id INT, platoBebidaNombre TEXT, precio_unitario DECIMAL, cantidad INT, subtotal DECIMAL) AS $$
 DECLARE
     num_cuenta_var TEXT;
 BEGIN
