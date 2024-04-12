@@ -94,4 +94,11 @@ export async function fetchIndividualPayments(mesa_id_arg) {
   return result.rows;
 }
 
+export async function getAvailableMesas() {
+  const result = await conn.query(
+    `SELECT mesa_id, esmovil, Area.nombre, capacidadmesa AS nombre_area FROM Mesa INNER JOIN Area ON Mesa.area_id = Area.area_id WHERE NOT EXISTS (SELECT 1 FROM Cuenta WHERE Cuenta.mesa_id = Mesa.mesa_id AND Cuenta.estado = 'Abierta');`,
+  );
+  return result.rows;
+}
+
 //SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'
