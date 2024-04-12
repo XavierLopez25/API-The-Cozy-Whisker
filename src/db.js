@@ -150,4 +150,12 @@ export async function submitQuejaEncuesta(
   );
 }
 
+export async function reportMostOrderedDishes(fecha_inicio, fecha_fin) {
+  const result = await conn.query(`SELECT * FROM report_most_ordered_dishes($1::DATE, $2::DATE);`, [
+    fecha_inicio,
+    fecha_fin,
+  ]);
+  return result.rows;
+}
+
 //SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'
