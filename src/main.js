@@ -22,6 +22,7 @@ import {
   listEmployees,
   reportMostOrderedDishes,
   reportMostOrdersTimeSlot,
+  reportAverageDiningTime,
 } from './db.js';
 import bodyParser from 'body-parser';
 
@@ -306,6 +307,19 @@ app.post('/report-most-orders-time-slot', async (req, res) => {
     res.status(200).json({ status: 'success', data: result });
   } catch (error) {
     console.error('Error executing reportMostOrdersTimeSlot function > ', error.stack);
+    res.status(500).json({ status: 'error', message: 'Internal Server Error' });
+  }
+});
+
+app.post('/report-average-dining-time', async (req, res) => {
+  const { fecha_inicio, fecha_fin } = req.body;
+
+  try {
+    const result = await reportAverageDiningTime(fecha_inicio, fecha_fin);
+    console.log(result);
+    res.status(200).json({ status: 'success', data: result });
+  } catch (error) {
+    console.error('Error executing reportAverageDiningTime function > ', error.stack);
     res.status(500).json({ status: 'error', message: 'Internal Server Error' });
   }
 });
