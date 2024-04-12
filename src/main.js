@@ -25,6 +25,7 @@ import {
   reportAverageDiningTime,
   reportComplaintsByPerson,
   reportComplaintsByDish,
+  reportServerEfficiencyLast6Months,
 } from './db.js';
 import bodyParser from 'body-parser';
 
@@ -348,6 +349,17 @@ app.post('/report-complaints-by-dish', async (req, res) => {
     res.status(200).json({ status: 'success', data: result });
   } catch (error) {
     console.error('Error executing reportComplaintsByDish function > ', error.stack);
+    res.status(500).json({ status: 'error', message: 'Internal Server Error' });
+  }
+});
+
+app.get('/report-server-efficiency-last-6-months', async (req, res) => {
+  try {
+    const result = await reportServerEfficiencyLast6Months();
+    console.log(result);
+    res.status(200).json({ status: 'success', data: result });
+  } catch (error) {
+    console.error('Error executing reportServerEfficiencyLast6Months function > ', error.stack);
     res.status(500).json({ status: 'error', message: 'Internal Server Error' });
   }
 });
