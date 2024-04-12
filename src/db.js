@@ -2,7 +2,7 @@ import conn from './conn.js';
 
 //Get all tables
 export async function getAllTables() {
-  const result = await conn.query(`SELECT * FROM PlatoBebida;`);
+  const result = await conn.query(`SELECT * FROM detallepedido;`);
   return result.rows;
 }
 
@@ -48,8 +48,21 @@ export async function getFoodByType(type) {
 }
 
 export async function fetchAllOrders(tipo_comida) {
-  const result = await conn.query(`SELECT * FROM fetch_detalle_by_tipo($1);`, [tipo_comida]);
+  const result = await conn.query(`SELECT * FROM fetch_detalle_by_tipo($1::TEXT);`, [tipo_comida]);
   return result.rows;
+}
+
+export async function createOrder(
+  mesa_id_arg,
+  platoB_id_arg,
+  cantidad_arg,
+  medidaC_id_arg,
+  nota_arg,
+) {
+  await conn.query(
+    `CALL create_pedido_and_detalle_with_mesa_id($1::INT, $2::INT, $3::INT, $4::INT, $5::TEXT);`,
+    [mesa_id_arg, platoB_id_arg, cantidad_arg, medidaC_id_arg, nota_arg],
+  );
 }
 
 //SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'
