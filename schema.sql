@@ -704,11 +704,3 @@ EXCEPTION WHEN OTHERS THEN
     RAISE;
 END;
 $$;
-
-
----Triggers---
----Triggers---
----Triggers---
----Triggers---
----Triggers---
----Triggers---
