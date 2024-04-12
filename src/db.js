@@ -47,4 +47,9 @@ export async function getFoodByType(type) {
   return result.rows;
 }
 
+export async function fetchAllOrders(tipo_comida) {
+  const result = await conn.query(`SELECT * FROM fetch_detalle_by_tipo($1);`, [tipo_comida]);
+  return result.rows;
+}
+
 //SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'
