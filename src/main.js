@@ -17,6 +17,7 @@ import {
   getAvailableMesas,
   getOccupiedMesas,
   submitQuejaEncuesta,
+  getFoodById,
 } from './db.js';
 import bodyParser from 'body-parser';
 
@@ -115,6 +116,19 @@ app.get('/food-by-type', async (req, res) => {
     res.status(200).json({ status: 'success', data: result });
   } catch (error) {
     console.error('Error executing getFoodByType function > ', error.stack);
+    res.status(500).json({ status: 'error', message: 'Internal Server Error' });
+  }
+});
+
+app.post('/food-by-id', async (req, res) => {
+  const { id } = req.body;
+
+  try {
+    const result = await getFoodById(id);
+    console.log(result);
+    res.status(200).json({ status: 'success', data: result });
+  } catch (error) {
+    console.error('Error executing getFoodById function > ', error.stack);
     res.status(500).json({ status: 'error', message: 'Internal Server Error' });
   }
 });
