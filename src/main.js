@@ -8,6 +8,7 @@ import {
   closeCuenta,
   getFoodByType,
   getRoleName,
+  fetchAllOrders,
 } from './db.js';
 import bodyParser from 'body-parser';
 
@@ -106,6 +107,19 @@ app.get('/food-by-type', async (req, res) => {
     res.status(200).json({ status: 'success', data: result });
   } catch (error) {
     console.error('Error executing getFoodByType function > ', error.stack);
+    res.status(500).json({ status: 'error', message: 'Internal Server Error' });
+  }
+});
+
+app.get('/fetch-all-orders', async (req, res) => {
+  const { tipo_comida } = req.query;
+
+  try {
+    const result = await fetchAllOrders(tipo_comida);
+    console.log(result);
+    res.status(200).json({ status: 'success', data: result });
+  } catch (error) {
+    console.error('Error executing fetchAllOrders function > ', error.stack);
     res.status(500).json({ status: 'error', message: 'Internal Server Error' });
   }
 });
