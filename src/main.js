@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 
 import {
   getAllTables,
@@ -34,6 +35,7 @@ const app = express();
 // Habilitar el middleware para parsear JSON en el cuerpo de las solicitudes
 app.use(express.json());
 app.use(bodyParser.json());
+app.use(cors());
 
 const port = 5000;
 

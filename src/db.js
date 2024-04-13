@@ -2,7 +2,7 @@ import conn from './conn.js';
 
 //Get all tables
 export async function getAllTables() {
-  const result = await conn.query(`SELECT * FROM EncuestasSatisfaccion;`);
+  const result = await conn.query(`SELECT * FROM Empleado;`);
   return result.rows;
 }
 

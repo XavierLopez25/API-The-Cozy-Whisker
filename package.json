@@ -19,6 +19,7 @@
   "homepage": "https://github.com/XavierLopez25/API-The-Cozy-Whisker#readme",
   "dependencies": {
     "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "pg": "^8.11.5"
