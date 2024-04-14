@@ -181,11 +181,19 @@ app.get('/food-plates', async (req, res) => {
   }
 });
 
-app.get('/food-measures', async (req, res) => {
+app.post('/food-measures', async (req, res) => {
+  const { comida_nombre, tamaño } = req.body;
   try {
-    const result = await getFoodMeasures();
+    if (!comida_nombre || !tamaño) {
+      return res.status(400).json({ status: 'error', message: 'Missing comida_id or tamaño' });
+    }
+    const result = await getFoodMeasures(comida_nombre, tamaño);
     console.log(result);
-    res.status(200).json({ status: 'success', data: result });
+    if (result.length > 0) {
+      res.status(200).json({ status: 'success', data: result });
+    } else {
+      res.status(404).json({ status: 'fail', message: 'No matching medidaC_id found' });
+    }
   } catch (error) {
     console.error('Error executing getFoodMeasures function > ', error.stack);
     res.status(500).json({ status: 'error', message: 'Internal Server Error' });
