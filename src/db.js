@@ -2,7 +2,7 @@ import conn from './conn.js';
 
 //Get all tables
 export async function getAllTables() {
-  const result = await conn.query(`SELECT * FROM Cuenta;`);
+  const result = await conn.query(`SELECT * FROM medida;`);
   return result.rows;
 }
 
@@ -66,13 +66,13 @@ export async function getFoodById(id) {
 
 export async function getDetallePedidoByMesaId(mesa_id) {
   const result = await conn.query(
-    `SELECT dp.*, pb.imagenLink, m.descripcion
-     FROM DetallePedido dp
-     JOIN Pedido p ON dp.pedido_id = p.pedido_id
-     JOIN Cuenta c ON p.num_cuenta = c.num_cuenta
-     JOIN PlatoBebida pb ON dp.platoB_id = pb.platoBebida_id
-     JOIN Medida m ON dp.medidaC_id = m.medida_id
-     WHERE c.mesa_id = $1 AND c.estado = 'Abierta'`,
+    `SELECT dp.*, pb.imagenLink, m.descripcion AS medidaDescripcion
+    FROM DetallePedido dp
+    JOIN Pedido p ON dp.pedido_id = p.pedido_id
+    JOIN Cuenta c ON p.num_cuenta = c.num_cuenta
+    LEFT JOIN PlatoBebida pb ON dp.platoB_id = pb.platoBebida_id
+    LEFT JOIN Medida m ON dp.medidaC_id = m.medida_id
+    WHERE c.mesa_id = $1 AND c.estado = 'Abierta';`,
     [mesa_id],
   );
   return result.rows;
