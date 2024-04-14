@@ -19,6 +19,7 @@ import {
   getOccupiedMesas,
   submitQuejaEncuesta,
   getFoodById,
+  getDetallePedidoByMesaId,
   getFoodMeasures,
   listEmployees,
   reportMostOrderedDishes,
@@ -150,6 +151,21 @@ app.post('/food-by-id', async (req, res) => {
     res.status(200).json({ status: 'success', data: result });
   } catch (error) {
     console.error('Error executing getFoodById function > ', error.stack);
+    res.status(500).json({ status: 'error', message: 'Internal Server Error' });
+  }
+});
+
+app.post('/detalle-pedido', async (req, res) => {
+  const { mesa_id } = req.body; // Obtiene el mesa_id de los parámetros de ruta
+  try {
+    const detalles = await getDetallePedidoByMesaId(mesa_id);
+    if (detalles.length > 0) {
+      res.status(200).json({ status: 'success', data: detalles });
+    } else {
+      res.status(404).json({ status: 'fail', message: 'No detail orders found for this table' });
+    }
+  } catch (error) {
+    console.error('Error fetching detail orders:', error);
     res.status(500).json({ status: 'error', message: 'Internal Server Error' });
   }
 });
