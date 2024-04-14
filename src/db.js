@@ -2,7 +2,7 @@ import conn from './conn.js';
 
 //Get all tables
 export async function getAllTables() {
-  const result = await conn.query(`SELECT * FROM Empleado;`);
+  const result = await conn.query(`SELECT * FROM Cuenta;`);
   return result.rows;
 }
 
@@ -61,6 +61,14 @@ export async function getFoodById(id) {
   const result = await conn.query(`SELECT nombre FROM PlatoBebida WHERE platobebida_id = $1;`, [
     id,
   ]);
+  return result.rows;
+}
+
+export async function getDetallePedidoByMesaId(mesa_id) {
+  const result = await conn.query(
+    `SELECT dp.* FROM DetallePedido dp JOIN Pedido p ON dp.pedido_id = p.pedido_id JOIN Cuenta c ON p.num_cuenta = c.num_cuenta WHERE c.mesa_id = $1 AND c.estado = 'Abierta'`,
+    [mesa_id],
+  );
   return result.rows;
 }
 
