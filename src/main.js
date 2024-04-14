@@ -128,8 +128,8 @@ app.post('/close-cuenta', async (req, res) => {
   }
 });
 
-app.get('/food-by-type', async (req, res) => {
-  const { type } = req.query;
+app.post('/food-by-type', async (req, res) => {
+  const { type } = req.body;
 
   try {
     const result = await getFoodByType(type);
