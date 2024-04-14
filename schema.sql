@@ -155,9 +155,9 @@ INSERT INTO Medida (tipo, descripcion) VALUES
 ('Plato', 'Pequeño'),
 ('Plato', 'Mediano'),
 ('Plato', 'Grande'),
-('Bebida', '8oz'),
-('Bebida', '12oz'),
-('Bebida', '16oz');
+('Bebida', 'Pequeño'),
+('Bebida', 'Mediano'),
+('Bebida', 'Grande');
 
 
 -- Insert Foods and Drinks
@@ -197,7 +197,6 @@ INSERT INTO MedidaComida (platoBebida_id, medida_id) VALUES
 (9, 1), (9, 2), (9, 3),
 (10, 1), (10, 2), (10, 3);
 
--- Association for bebidas with medidas '8oz', '12oz', '16oz' (IDs 4, 5, 6)
 INSERT INTO MedidaComida (platoBebida_id, medida_id) VALUES
 (11, 4), (11, 5), (11, 6),
 (12, 4), (12, 5), (12, 6),
