@@ -72,9 +72,14 @@ export async function getDetallePedidoByMesaId(mesa_id) {
   return result.rows;
 }
 
-export async function getFoodMeasures() {
+export async function getFoodMeasures(comida_nombre, tamaño) {
   const result = await conn.query(
-    `SELECT MC.medC_id AS medidaC_id, PB.nombre AS comida, M.descripcion AS tamaño FROM MedidaComida MC INNER JOIN PlatoBebida PB ON MC.platoBebida_id = PB.platoBebida_id INNER JOIN Medida M ON MC.medida_id = M.medida_id ORDER BY MC.medC_id;`,
+    `SELECT MC.medC_id AS medidaC_id
+     FROM MedidaComida MC
+     INNER JOIN PlatoBebida PB ON MC.platoBebida_id = PB.platoBebida_id
+     INNER JOIN Medida M ON MC.medida_id = M.medida_id
+     WHERE PB.nombre = $1 AND M.descripcion = $2;`,
+    [comida_nombre, tamaño],
   );
   return result.rows;
 }
