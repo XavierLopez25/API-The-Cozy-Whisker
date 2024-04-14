@@ -19,12 +19,12 @@ export async function registerNewEmployee(name, role, startDate, username, passw
     `SELECT * FROM register_new_employee($1::TEXT, $2::TEXT, $3::DATE, $4::TEXT, $5::TEXT);`,
     [name, role, startDate, username, password],
   );
-  return result;
+  return result.rows;
 }
 
 export async function getRoleName(username, password) {
   const result = await conn.query(
-    `SELECT e.nombre, e.rol FROM Empleado e INNER JOIN Usuario u ON e.empleado_id = u.empleado_id WHERE u.usuario = $1 AND u.pwd_md5 = MD5($2);`,
+    `SELECT e.empleado_id, e.nombre, e.rol FROM Empleado e INNER JOIN Usuario u ON e.empleado_id = u.empleado_id WHERE u.usuario = $1 AND u.pwd_md5 = MD5($2);`,
     [username, password],
   );
 
