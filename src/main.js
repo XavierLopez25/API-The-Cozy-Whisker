@@ -77,8 +77,8 @@ app.post('/login', async (req, res) => {
   }
 });
 
-app.get('/get-role-name', async (req, res) => {
-  const { username, password } = req.query;
+app.post('/get-role-name', async (req, res) => {
+  const { username, password } = req.body;
   try {
     const result = await getRoleName(username, password);
     console.log('TEST', result.rows[0]);
