@@ -28,6 +28,7 @@ import {
   reportComplaintsByPerson,
   reportComplaintsByDish,
   reportServerEfficiencyLast6Months,
+  getLastInvoiceByMesaId,
 } from './db.js';
 import bodyParser from 'body-parser';
 
@@ -386,6 +387,22 @@ app.get('/report-server-efficiency-last-6-months', async (req, res) => {
     res.status(200).json({ status: 'success', data: result });
   } catch (error) {
     console.error('Error executing reportServerEfficiencyLast6Months function > ', error.stack);
+    res.status(500).json({ status: 'error', message: 'Internal Server Error' });
+  }
+});
+
+app.post('/last-invoice', async (req, res) => {
+  const { mesa_id } = req.body;
+  try {
+    const invoice = await getLastInvoiceByMesaId(mesa_id);
+    console.log(invoice);
+    if (invoice) {
+      res.status(200).json({ status: 'success', data: invoice });
+    } else {
+      res.status(404).json({ status: 'fail', message: 'Invoice not found for this table' });
+    }
+  } catch (error) {
+    console.error('Error fetching last invoice:', error);
     res.status(500).json({ status: 'error', message: 'Internal Server Error' });
   }
 });
