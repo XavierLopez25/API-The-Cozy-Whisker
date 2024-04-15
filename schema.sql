@@ -442,7 +442,6 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION fetch_detalle_by_tipo(tipo_comida TEXT)
 RETURNS TABLE(detalle_id INT, pedido_id INT, platoB_id INT, cantidad INT, medidaC_id INT, fecha_ordenado TIMESTAMP, Nota TEXT) AS $$
 BEGIN
-    -- Validate input to ensure it's either 'Plato' or 'Bebida'
     IF tipo_comida NOT IN ('Plato', 'Bebida') THEN
         RAISE EXCEPTION 'Invalid tipo_comida. Must be ''Plato'' or ''Bebida''.';
     END IF;
@@ -450,12 +449,13 @@ BEGIN
     RETURN QUERY 
     SELECT d.detalle_id, d.pedido_id, d.platoB_id, d.cantidad, d.medidaC_id, d.fecha_ordenado, d.Nota
     FROM DetallePedido d
+    INNER JOIN Pedido p ON d.pedido_id = p.pedido_id
+    INNER JOIN Cuenta c ON p.num_cuenta = c.num_cuenta
     INNER JOIN PlatoBebida pb ON d.platoB_id = pb.platoBebida_id
-    WHERE pb.tipo = tipo_comida
+    WHERE pb.tipo = tipo_comida AND c.estado = 'Abierta'
     ORDER BY d.fecha_ordenado ASC;
 END;
 $$ LANGUAGE plpgsql;
-
 
 CREATE OR REPLACE FUNCTION get_empleado_id_by_username_password(_username TEXT, _password TEXT)
 RETURNS INT AS $$
