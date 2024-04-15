@@ -291,6 +291,7 @@ app.post('/submit-queja-encuesta', async (req, res) => {
   const {
     nit_arg,
     empleado_id_arg,
+    empleado_id_arg_sat,
     platoBebida_id_arg,
     motivo_arg,
     clasificacion_arg,
@@ -302,6 +303,7 @@ app.post('/submit-queja-encuesta', async (req, res) => {
     await submitQuejaEncuesta(
       nit_arg,
       empleado_id_arg,
+      empleado_id_arg_sat,
       platoBebida_id_arg,
       motivo_arg,
       clasificacion_arg,
