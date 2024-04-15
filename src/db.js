@@ -158,10 +158,11 @@ export async function submitQuejaEncuesta(
   exactitud_arg,
 ) {
   await conn.query(
-    `CALL submit_queja_encuesta($1::TEXT, $2::INT, $3::INT, $4::TEXT, $5::INT, $6::INT, $7::INT);`,
+    `CALL submit_queja_encuesta($1::TEXT, $2::INT, $3::INT, $4::INT, $5::TEXT, $6::INT, $7::INT, $8::INT);`,
     [
       nit_arg,
       empleado_id_arg,
+      empleado_id_arg_sat,
       platoBebida_id_arg,
       motivo_arg,
       clasificacion_arg,
