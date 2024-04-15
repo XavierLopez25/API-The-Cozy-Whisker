@@ -218,7 +218,7 @@ export async function reportServerEfficiencyLast6Months() {
 
 export async function getLastInvoiceByMesaId(mesa_id) {
   const result = await conn.query(
-    `SELECT * FROM Factura f JOIN Cuenta c ON f.cuenta_id = c.num_cuenta WHERE c.mesa_id = $1 ORDER BY f.fecha_emision DESC LIMIT 1;`,
+    `SELECT *, Pago.tarjeta, Pago.efectivo FROM Factura f JOIN Cuenta c ON f.cuenta_id = c.num_cuenta INNER JOIN Pago ON Pago.factura_id = f.factura_id WHERE c.mesa_id = $1 ORDER BY f.fecha_emision DESC LIMIT 1;`,
     [mesa_id],
   );
   return result.rows[0];
