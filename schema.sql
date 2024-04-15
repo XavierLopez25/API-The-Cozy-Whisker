@@ -695,6 +695,7 @@ $$;
 CREATE OR REPLACE PROCEDURE submit_queja_encuesta(
     nit_arg TEXT,
     empleado_id_arg INT,
+    empleado_id_arg_sat INT,
     platoBebida_id_arg INT,
     motivo_arg TEXT,
     clasificacion_arg INT,
@@ -717,7 +718,7 @@ BEGIN
     -- Insert into EncuestasSatisfaccion linking the new Queja
     INSERT INTO EncuestasSatisfaccion(nit, empleado_id, amabilidad, exactitud, fecha, queja_id)
     VALUES (nit_arg, 
-            NULLIF(empleado_id_arg, 0), -- Assuming 0 indicates no employee to rate, adjust as needed
+            NULLIF(empleado_id_arg_sat, 0), -- Assuming 0 indicates no employee to rate, adjust as needed
             amabilidad_arg, 
             exactitud_arg, 
             CURRENT_TIMESTAMP,
