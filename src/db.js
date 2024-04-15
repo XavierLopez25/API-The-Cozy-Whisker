@@ -151,6 +151,7 @@ export async function getOccupiedMesas() {
 export async function submitQuejaEncuesta(
   nit_arg,
   empleado_id_arg,
+  empleado_id_arg_sat,
   platoBebida_id_arg,
   motivo_arg,
   clasificacion_arg,
