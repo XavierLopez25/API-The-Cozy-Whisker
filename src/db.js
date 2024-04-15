@@ -2,7 +2,9 @@ import conn from './conn.js';
 
 //Get all tables
 export async function getAllTables() {
-  const result = await conn.query(`SELECT * FROM medida;`);
+  const result = await conn.query(
+    `SELECT * FROM Factura f JOIN Cuenta c ON f.cuenta_id = c.num_cuenta WHERE c.mesa_id = 1 ORDER BY f.fecha_emision DESC LIMIT 1;;`,
+  );
   return result.rows;
 }
 
@@ -212,6 +214,14 @@ export async function reportComplaintsByDish(fecha_inicio, fecha_fin) {
 export async function reportServerEfficiencyLast6Months() {
   const result = await conn.query(`SELECT * FROM report_server_efficiency_last_6_months();`);
   return result.rows;
+}
+
+export async function getLastInvoiceByMesaId(mesa_id) {
+  const result = await conn.query(
+    `SELECT * FROM Factura f JOIN Cuenta c ON f.cuenta_id = c.num_cuenta WHERE c.mesa_id = $1 ORDER BY f.fecha_emision DESC LIMIT 1;`,
+    [mesa_id],
+  );
+  return result.rows[0];
 }
 
 //SELECT table_name FROM information_schema.tables WHERE table_schema = 'public'
