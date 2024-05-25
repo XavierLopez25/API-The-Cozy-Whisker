@@ -1,15 +1,18 @@
 import pkg from 'pg';
+import dotenv from 'dotenv';
 const { Pool } = pkg;
+dotenv.config();
 
-// Creating a new pool using pg
 const pool = new Pool({
-  host: 'localhost',
-  user: 'dbadmin',
-  database: 'the_cozy_whisker',
-  password: '1234',
-  port: 5432,
-  max: 10,
-  idleTimeoutMillis: 30000,
+  connectionString: process.env.POSTGRES_URL + '?sslmode=require',
+});
+
+pool.connect((err) => {
+  if (err) {
+    console.log('Error connecting to Postgres:', err);
+  } else {
+    console.log('Connected to Postgres');
+  }
 });
 
 export default pool;
